@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyVibe - Handoff Alta Fidelidad UI/UX (Material Design 3)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <style>
+    :root {
+      /* M3 Tokens - Modo Claro */
+      --md-sys-color-primary: #1E4E5F;
+      --md-sys-color-on-primary: #FFFFFF;
+      --md-sys-color-primary-container: #C8EAF4;
+      --md-sys-color-on-primary-container: #001F28;
+      --md-sys-color-secondary: #4A6267;
+      --md-sys-color-surface: #FFFFFF;
+      --md-sys-color-on-surface: #191C1D;
+      --md-sys-color-surface-variant: #E4ECEF;
+      --md-sys-color-on-surface-variant: #424D50;
+      --md-sys-color-outline: #738084;
+      --md-sys-color-outline-variant: #D0DBDF;
+      --md-sys-color-background: #F4F7F8;
+      --md-sys-color-success: #2E7D32;
+      --md-sys-color-success-container: #D8F5DB;
+      --md-sys-color-on-success-container: #0B3810;
+      --md-sys-color-error: #BA1A1A;
+      --md-sys-color-error-container: #FFDAD6;
+      --md-sys-color-on-error-container: #410002;
+      --md-sys-color-warning: #D97706;
+      --md-sys-color-warning-container: #FEF3C7;
+      --md-sys-color-zen: #1B5E20;
+      --md-sys-color-zen-bg: #EDF7ED;
+      --md-sys-color-zen-border: #A5D6A7;
+
+      /* Materias */
+      --sub-mobile: #1E4E5F;
+      --sub-os: #395886;
+      --sub-networks: #5C6B73;
+      --sub-calc: #8D5B4C;
+
+      --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'Roboto Mono', monospace;
+    }
+
+    /* Tema Oscuro */
+    .theme-dark {
+      --md-sys-color-primary: #7CD3EB;
+      --md-sys-color-on-primary: #003642;
+      --md-sys-color-primary-container: #004D5F;
+      --md-sys-color-on-primary-container: #BDE9F8;
+      --md-sys-color-secondary: #B1CBD1;
+      --md-sys-color-surface: #141A1C;
+      --md-sys-color-on-surface: #E1E3E4;
+      --md-sys-color-surface-variant: #283236;
+      --md-sys-color-on-surface-variant: #BCC7CA;
+      --md-sys-color-outline: #869296;
+      --md-sys-color-outline-variant: #3E494D;
+      --md-sys-color-background: #0E1214;
+      --md-sys-color-success: #81C784;
+      --md-sys-color-success-container: #1B4D20;
+      --md-sys-color-on-success-container: #D8F5DB;
+      --md-sys-color-error: #FFB4AB;
+      --md-sys-color-error-container: #93000A;
+      --md-sys-color-on-error-container: #FFDAD6;
+      --md-sys-color-zen: #A5D6A7;
+      --md-sys-color-zen-bg: #152918;
+      --md-sys-color-zen-border: #2E5B33;
+
+      --sub-mobile: #7CD3EB;
+      --sub-os: #9CB9E6;
+      --sub-networks: #A9BCD0;
+      --sub-calc: #E09F8C;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-main);
+      background-color: #E2E8EC;
+      color: #1A202C;
+      padding: 30px 20px;
+      line-height: 1.4;
+    }
+
+    .main-wrapper {
+      max-width: 1560px;
+      margin: 0 auto;
+    }
+
+    header.handoff-header {
+      background: #FFFFFF;
+      padding: 24px 32px;
+      border-radius: 16px;
+      border: 1px solid #D0DBDF;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .header-info h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #1E4E5F;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-info p {
+      font-size: 13.5px;
+      color: #4A6267;
+      margin-top: 4px;
+    }
+
+    .theme-switcher-group {
+      display: flex;
+      background: #E8EEF0;
+      padding: 4px;
+      border-radius: 10px;
+      gap: 4px;
+    }
+
+    .theme-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #334B50;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .theme-btn.active {
+      background: #FFFFFF;
+      color: #1E4E5F;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    /* Contenedor de Grilla */
+    .screens-grid {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .screen-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .screen-label-badge {
+      font-size: 12px;
+      font-weight: 800;
+      color: #26383B;
+      margin-bottom: 8px;
+      background: #FFFFFF;
+      padding: 5px 14px;
+      border-radius: 20px;
+      border: 1px solid #D0DBDF;
+      letter-spacing: 0.3px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+
+    /* Frame de Celular Android 360 x 800 dp */
+    .phone-canvas {
+      width: 360px;
+      height: 780px;
+      background-color: var(--md-sys-color-background);
+      border-radius: 36px;
+      border: 6px solid #1E2528;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.18);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: background-color 0.25s;
+    }
+
+    /* Barra de Estado Android */
+    .android-status-bar {
+      height: 32px;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      background: var(--md-sys-color-surface);
+      user-select: none;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    /* M3 Top App Bar */
+    .m3-top-app-bar {
+      height: 56px;
+      background: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      flex-shrink: 0;
+    }
+
+    .app-bar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--md-sys-color-primary);
+    }
+
+    .app-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .icon-btn-m3 {
+      width: 40px;
+      height: 40px;
+      border-radius: 20px;
+      border: none;
+      background: transparent;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .icon-btn-m3:hover {
+      background: var(--md-sys-color-surface-variant);
+    }
+
+    /* Scrollable Screen Content Body */
+    .m3-content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* M3 Cards */
+    .m3-card {
+      background: var(--md-sys-color-surface);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+
+    .m3-card.primary-tonal {
+      background: var(--md-sys-color-primary-container);
+      border-color: transparent;
+      color: var(--md-sys-color-on-primary-container);
+    }
+
+    .m3-card.success-tonal {
+      background: var(--md-sys-color-success-container);
+      border-color: var(--md-sys-color-success);
+    }
+
+    .m3-card.error-tonal {
+      border-color: var(--md-sys-color-error);
+    }
+
+    /* M3 Buttons */
+    .m3-btn {
+      height: 44px;
+      padding: 0 16px;
+      border-radius: 22px;
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: var(--font-main);
+      transition: transform 0.1s, opacity 0.2s;
+      text-decoration: none;
+    }
+
+    .m3-btn:active {
+      transform: scale(0.98);
+    }
+
+    .m3-btn-filled {
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+    }
+
+    .m3-btn-outlined {
+      background: transparent;
+      border: 1.5px solid var(--md-sys-color-outline);
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .m3-btn-destructive {
+      background: var(--md-sys-color-error);
+      color: #FFFFFF;
+    }
+
+    .m3-btn-sm {
+      height: 32px;
+      padding: 0 10px;
+      border-radius: 16px;
+      font-size: 11px;
+    }
+
+    /* Badges & Chips */
+    .m3-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--md-sys-color-surface-variant);
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .m3-chip.streak {
+      background: var(--md-sys-color-error-container);
+      color: var(--md-sys-color-error);
+      font-weight: 800;
+    }
+
+    .m3-chip.success {
+      background: var(--md-sys-color-success-container);
+      color: var(--md-sys-color-success);
+      font-weight: 800;
+    }
+
+    /* Progress Indicators */
+    .m3-linear-progress {
+      width: 100%;
+      height: 10px;
+      background: var(--md-sys-color-surface-variant);
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .m3-progress-bar {
+      height: 100%;
+      background: var(--md-sys-color-primary);
+      border-radius: 5px;
+      transition: width 0.3s;
+    }
+
+    .m3-progress-bar.success {
+      background: var(--md-sys-color-success);
+    }
+
+    .m3-progress-bar.error {
+      background: var(--md-sys-color-error);
+    }
+
+    /* M3 Bottom Navigation Bar */
+    .m3-bottom-nav {
+      height: 64px;
+      background: var(--md-sys-color-surface);
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px;
+      flex-shrink: 0;
+    }
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: transparent;
+      border: none;
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 12px;
+      transition: all 0.15s;
+      font-family: var(--font-main);
+    }
+
+    .bottom-nav-item .icon-wrapper {
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .bottom-nav-item .nav-label {
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .bottom-nav-item.active {
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .bottom-nav-item.active .icon-wrapper {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+
+    .bottom-nav-item.active .nav-label {
+      font-weight: 800;
+      color: var(--md-sys-color-primary);
+    }
+
+    /* FAB */
+    .m3-fab {
+      position: absolute;
+      bottom: 78px;
+      right: 18px;
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    /* Swatch */
+    .subject-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    /* Temporizador Zanshin */
+    .timer-ring-wrapper {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      border: 8px solid var(--md-sys-color-surface-variant);
+      border-top-color: var(--md-sys-color-primary);
+      border-right-color: var(--md-sys-color-primary);
+      margin: 10px auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--md-sys-color-surface);
+      box-shadow: inset 0 0 12px rgba(0,0,0,0.03);
+    }
+
+    .timer-time-val {
+      font-family: var(--font-mono);
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--md-sys-color-primary);
+      letter-spacing: -1px;
+    }
+
+    /* Gráficos */
+    .pie-mockup-circle {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--sub-mobile) 0% 45%,
+        var(--sub-os) 45% 72%,
+        var(--sub-networks) 72% 90%,
+        var(--sub-calc) 90% 100%
+      );
+      margin: 0 auto;
+      border: 3px solid var(--md-sys-color-surface);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .bar-histogram-chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      height: 85px;
+      padding-top: 10px;
+    }
+
+    .bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .bar-fill {
+      width: 18px;
+      background: var(--md-sys-color-primary);
+      border-radius: 4px 4px 0 0;
+    }
+
+    /* Sección de Modales y Estados (Fila Inferior) */
+    .states-section {
+      margin-top: 48px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #1E4E5F;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .states-grid {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .state-card-preview {
+      width: 320px;
+      background: var(--md-sys-color-surface);
+      border-radius: 20px;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+  </style>
+</head>
+<body id="appBody">
+
+  <div class="main-wrapper">
+    <!-- Encabezado de Navegación y Control de Tema -->
+    <header class="handoff-header">
+      <div class="header-info">
+        <h1>
+          <span class="material-symbols-outlined" style="font-size: 30px;">dashboard_customize</span>
+          StudyVibe — Handoff de Alta Fidelidad UI/UX
+        </h1>
+        <p>Especificaciones visuales de referencia para implementación en Android Studio (Java + XML + Material 3)</p>
+      </div>
+
+      <div class="theme-switcher-group">
+        <button class="theme-btn active" id="btnLight" onclick="setTheme('light')">
+          <span class="material-symbols-outlined" style="font-size: 18px;">light_mode</span> Modo Claro
+        </button>
+        <button class="theme-btn" id="btnDark" onclick="setTheme('dark')">
+          <span class="material-symbols-outlined" style="font-size: 18px;">dark_mode</span> Modo Oscuro
+        </button>
+      </div>
+    </header>
+
+    <!-- Grilla de las 5 Pantallas -->
+    <div class="screens-grid">
+
+      <!-- ========================================== -->
+      <!-- PANTALLA 1: INICIO (DASHBOARD)             -->
+      <!-- ========================================== -->
+      <div class="screen-column">
+        <div class="screen-label-badge">Pantalla 1: Inicio (Dashboard)</div>
+        <div class="phone-canvas">
+          <!-- Status Bar -->
+          <div class="android-status-bar">
+            <span>10:30</span>
+            <div class="status-icons">
+              <span class="material-symbols-outlined" style="font-size: 14px;">wifi</span>
+              <span class="material-symbols-outlined" style="font-size: 14px;">signal_cellular_4_bar</span>
+              <span class="material-symbols-outlined" style="font-size: 14px;">battery_full</span>
+            </div>
+          </div>
+
+          <!-- App Bar -->
+          <div class="m3-top-app-bar">
+            <div class="app-bar-brand">
+              <span class="material-symbols-outlined" style="font-size: 26px;">self_improvement</span>
+              <span>StudyVibe</span>
+            </div>
+            <div class="app-bar-actions">
+              <button class="icon-btn-m3" title="Notificaciones">
+                <span class="material-symbols-outlined" style="font-size: 22px;">notifications</span>
+              </button>
+              <button class="icon-btn-m3" title="Perfil">
+                <span class="material-symbols-outlined" style="font-size: 22px;">account_circle</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Content Body -->
+          <div class="m3-content-scroll">
+            <!-- Saludo y Semestre -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <h2 style="font-size: 18px; font-weight: 800; color: var(--md-sys-color-on-surface);">Hola, Estudiante</h2>
+                <div style="font-size: 11.5px; color: var(--md-sys-color-on-surface-variant); margin-top: 2px;">
+                  Sábado, 07 de Noviembre • Enfoque Zanshin
+                </div>
+              </div>
+              <span class="m3-chip">Semestre II-2026</span>
+            </div>
+
+            <!-- Racha Kaizen (HU-12) -->
+            <div class="m3-card" style="padding: 12px 14px;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span class="material-symbols-outlined" style="color: var(--md-sys-color-error); font-size: 24px;">local_fire_department</span>
+                  <div>
+                    <div style="font-size: 13.5px; font-weight: 700; color: var(--md-sys-color-on-surface);">Racha de Estudio Kaizen</div>
+                    <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">4 días consecutivos con al menos 1 sesión</div>
+                  </div>
+                </div>
+                <span class="m3-chip streak">4 Días</span>
+              </div>
+            </div>
+
+            <!-- Meta Semanal Global (HU-08) - Unificada en 14.0 / 20.0 hrs -->
+            <div class="m3-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 13px; font-weight: 700; color: var(--md-sys-color-on-surface);">Meta Semanal Global</span>
+                <span style="font-size: 13px; font-weight: 800; color: var(--md-sys-color-primary);">14.0 / 20.0 hrs</span>
+              </div>
+              <div class="m3-linear-progress">
+                <div class="m3-progress-bar" style="width: 70%;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                <span style="font-weight: 700; color: var(--md-sys-color-on-surface);">70% completado</span>
+                <span style="color: var(--md-sys-color-on-surface-variant);">Faltan 6.0 hrs para el domingo</span>
+              </div>
+            </div>
+
+            <!-- Botón CTA Iniciar Enfoque -->
+            <button class="m3-btn m3-btn-filled" style="width: 100%;">
+              <span class="material-symbols-outlined" style="font-size: 18px;">play_arrow</span>
+              Iniciar Sesión de Enfoque Ahora
+            </button>
+
+            <!-- Banner Shinrin-yoku -->
+            <div class="m3-card" style="background: var(--md-sys-color-zen-bg); border-color: var(--md-sys-color-zen-border); padding: 10px 12px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="material-symbols-outlined" style="color: var(--md-sys-color-zen); font-size: 20px;">spa</span>
+                <div style="font-size: 11px; color: var(--md-sys-color-zen); font-weight: 600;">
+                  <strong>Shinrin-yoku:</strong> Recuerda tomar pausas de 5 min alejado de pantallas.
+                </div>
+              </div>
+            </div>
+
+            <!-- Agenda de Hoy (HU-04) -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+              <span style="font-size: 13px; font-weight: 800; color: var(--md-sys-color-on-surface);">Agenda de Sesiones Hoy</span>
+              <a href="#" style="font-size: 11.5px; color: var(--md-sys-color-primary); font-weight: 700; text-decoration: none;">Ver calendario</a>
+            </div>
+
+            <!-- Sesión 1 -->
+            <div class="m3-card" style="padding: 10px 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="subject-swatch" style="background: var(--sub-mobile);"></span>
+                  <div>
+                    <div style="font-size: 12px; font-weight: 700; color: var(--md-sys-color-on-surface);">Aplicaciones Móviles I</div>
+                    <div style="font-size: 10.5px; color: var(--md-sys-color-on-surface-variant);">16:00 - 17:30 (90 min) • Pomodoro</div>
+                  </div>
+                </div>
+                <span class="m3-chip" style="font-size: 10px;">Pendiente</span>
+              </div>
+            </div>
+
+            <!-- Sesión 2 -->
+            <div class="m3-card" style="padding: 10px 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="subject-swatch" style="background: var(--sub-os);"></span>
+                  <div>
+                    <div style="font-size: 12px; font-weight: 700; color: var(--md-sys-color-on-surface);">Sistemas Operativos</div>
+                    <div style="font-size: 10.5px; color: var(--md-sys-color-on-surface-variant);">19:00 - 20:00 (60 min) • Bloque</div>
+                  </div>
+                </div>
+                <span class="m3-chip" style="font-size: 10px;">Pendiente</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation Bar -->
+          <nav class="m3-bottom-nav">
+            <button class="bottom-nav-item active">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">home</span></div>
+              <span class="nav-label">Inicio</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">menu_book</span></div>
+              <span class="nav-label">Materias</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">timer</span></div>
+              <span class="nav-label">Enfoque</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">track_changes</span></div>
+              <span class="nav-label">Metas</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">bar_chart</span></div>
+              <span class="nav-label">Reportes</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PANTALLA 2: GESTIÓN DE MATERIAS (5S)       -->
+      <!-- ========================================== -->
+      <div class="screen-column">
+        <div class="screen-label-badge">Pantalla 2: Gestión de Materias</div>
+        <div class="phone-canvas">
+          <!-- Status Bar -->
+          <div class="android-status-bar">
+            <span>10:30</span>
+            <div class="status-icons">
+              <span class="material-symbols-outlined" style="font-size: 14px;">wifi</span>
+              <span class="material-symbols-outlined" style="font-size: 14px;">battery_full</span>
+            </div>
+          </div>
+
+          <!-- App Bar -->
+          <div class="m3-top-app-bar">
+            <div class="app-bar-brand" style="color: var(--md-sys-color-on-surface);">
+              <span>Mis Materias</span>
+            </div>
+            <button class="icon-btn-m3">
+              <span class="material-symbols-outlined" style="font-size: 22px;">search</span>
+            </button>
+          </div>
+
+          <!-- Content Body -->
+          <div class="m3-content-scroll">
+            <!-- Buscador M3 -->
+            <div style="background: var(--md-sys-color-surface); border: 1.5px solid var(--md-sys-color-outline-variant); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; color: var(--md-sys-color-on-surface-variant); font-size: 12px;">
+              <span class="material-symbols-outlined" style="font-size: 18px;">search</span>
+              <span>Buscar asignatura por nombre o sigla…</span>
+            </div>
+
+            <!-- Contador y 5S -->
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--md-sys-color-on-surface-variant);">4 Materias Registradas</span>
+              <span class="m3-chip">Método 5S: Orden</span>
+            </div>
+
+            <!-- Materia 1 -->
+            <div class="m3-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span class="subject-swatch" style="background: var(--sub-mobile);"></span>
+                  <div>
+                    <div style="font-size: 13.5px; font-weight: 700; color: var(--md-sys-color-on-surface);">Aplicaciones Móviles I</div>
+                    <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">INF-312 • 5 sesiones • 7.5 hrs</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button class="m3-btn m3-btn-outlined m3-btn-sm">Editar</button>
+                  <button class="m3-btn m3-btn-outlined m3-btn-sm" style="color: var(--md-sys-color-error); border-color: var(--md-sys-color-error-container);">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Materia 2 -->
+            <div class="m3-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span class="subject-swatch" style="background: var(--sub-os);"></span>
+                  <div>
+                    <div style="font-size: 13.5px; font-weight: 700; color: var(--md-sys-color-on-surface);">Sistemas Operativos</div>
+                    <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">INF-314 • 3 sesiones • 4.5 hrs</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button class="m3-btn m3-btn-outlined m3-btn-sm">Editar</button>
+                  <button class="m3-btn m3-btn-outlined m3-btn-sm" style="color: var(--md-sys-color-error); border-color: var(--md-sys-color-error-container);">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Materia 3 -->
+            <div class="m3-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span class="subject-swatch" style="background: var(--sub-networks);"></span>
+                  <div>
+                    <div style="font-size: 13.5px; font-weight: 700; color: var(--md-sys-color-on-surface);">Redes de Computadoras II</div>
+                    <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">INF-320 • 2 sesiones • 3.0 hrs</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button class="m3-btn m3-btn-outlined m3-btn-sm">Editar</button>
+                  <button class="m3-btn m3-btn-outlined m3-btn-sm" style="color: var(--md-sys-color-error); border-color: var(--md-sys-color-error-container);">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Materia 4 -->
+            <div class="m3-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span class="subject-swatch" style="background: var(--sub-calc);"></span>
+                  <div>
+                    <div style="font-size: 13.5px; font-weight: 700; color: var(--md-sys-color-on-surface);">Cálculo II</div>
+                    <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">MAT-201 • 1 sesión • 1.5 hrs</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button class="m3-btn m3-btn-outlined m3-btn-sm">Editar</button>
+                  <button class="m3-btn m3-btn-outlined m3-btn-sm" style="color: var(--md-sys-color-error); border-color: var(--md-sys-color-error-container);">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAB Agregar Materia (HU-01) -->
+          <button class="m3-fab" title="Registrar Nueva Materia">
+            <span class="material-symbols-outlined" style="font-size: 28px;">add</span>
+          </button>
+
+          <!-- Bottom Navigation Bar -->
+          <nav class="m3-bottom-nav">
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">home</span></div>
+              <span class="nav-label">Inicio</span>
+            </button>
+            <button class="bottom-nav-item active">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">menu_book</span></div>
+              <span class="nav-label">Materias</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">timer</span></div>
+              <span class="nav-label">Enfoque</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">track_changes</span></div>
+              <span class="nav-label">Metas</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">bar_chart</span></div>
+              <span class="nav-label">Reportes</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PANTALLA 3: ENFOQUE ZANSHIN (TEMPORIZADOR) -->
+      <!-- ========================================== -->
+      <div class="screen-column">
+        <div class="screen-label-badge">Pantalla 3: Enfoque Zanshin</div>
+        <div class="phone-canvas">
+          <!-- Status Bar -->
+          <div class="android-status-bar">
+            <span>10:30</span>
+            <div class="status-icons">
+              <span class="material-symbols-outlined" style="font-size: 14px;">wifi</span>
+              <span class="material-symbols-outlined" style="font-size: 14px;">battery_full</span>
+            </div>
+          </div>
+
+          <!-- App Bar -->
+          <div class="m3-top-app-bar">
+            <button class="icon-btn-m3">
+              <span class="material-symbols-outlined" style="font-size: 22px;">arrow_back</span>
+            </button>
+            <div class="app-bar-brand" style="font-size: 17px; color: var(--md-sys-color-on-surface);">
+              <span>Enfoque Zanshin</span>
+            </div>
+            <button class="icon-btn-m3">
+              <span class="material-symbols-outlined" style="font-size: 22px;">settings</span>
+            </button>
+          </div>
+
+          <!-- Content Body -->
+          <div class="m3-content-scroll" style="align-items: center; text-align: center; justify-content: space-between;">
+            <!-- Selector Asignatura Activa -->
+            <div style="width: 100%;">
+              <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 4px;">Asignatura en estudio:</div>
+              <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--md-sys-color-surface); border: 1.5px solid var(--md-sys-color-outline-variant); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; color: var(--md-sys-color-on-surface);">
+                <span class="subject-swatch" style="background: var(--sub-mobile);"></span>
+                <span>Aplicaciones Móviles I</span>
+                <span class="material-symbols-outlined" style="font-size: 16px;">arrow_drop_down</span>
+              </div>
+            </div>
+
+            <!-- Cronómetro Anillo Circular (HU-05) -->
+            <div>
+              <div class="timer-ring-wrapper">
+                <div style="font-size: 10px; font-weight: 800; color: var(--md-sys-color-on-surface-variant); letter-spacing: 1px;">
+                  BLOQUE POMODORO 1/4
+                </div>
+                <div class="timer-time-val">24:38</div>
+                <div style="font-size: 10.5px; color: var(--md-sys-color-on-surface-variant); margin-top: 2px;">
+                  Estado: Activo • Pantalla encendida
+                </div>
+              </div>
+
+              <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant); margin-top: 6px;">
+                Sesión iniciada: 10:05 AM | Neto hoy: <strong>1h 45m</strong>
+              </div>
+            </div>
+
+            <!-- Acciones y Registro de Notas (HU-06) -->
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
+              <div style="display: flex; gap: 10px;">
+                <button class="m3-btn m3-btn-outlined" style="flex: 1;">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">pause</span>
+                  Pausar Sesión
+                </button>
+                <button class="m3-btn m3-btn-destructive" style="flex: 1;">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">stop</span>
+                  Finalizar Estudio
+                </button>
+              </div>
+
+              <!-- Bitácora de Tópicos -->
+              <div class="m3-card" style="text-align: left; padding: 10px 12px;">
+                <div style="font-size: 11px; font-weight: 700; color: var(--md-sys-color-on-surface); margin-bottom: 4px;">
+                  Notas y tópicos cubiertos (HU-06):
+                </div>
+                <div style="background: var(--md-sys-color-background); border: 1px dashed var(--md-sys-color-outline-variant); border-radius: 8px; padding: 8px; font-size: 11px; color: var(--md-sys-color-on-surface);">
+                  ✏️ "Resolución de ejercicios de árboles binarios y diagramas UML…"
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation Bar -->
+          <nav class="m3-bottom-nav">
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">home</span></div>
+              <span class="nav-label">Inicio</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">menu_book</span></div>
+              <span class="nav-label">Materias</span>
+            </button>
+            <button class="bottom-nav-item active">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">timer</span></div>
+              <span class="nav-label">Enfoque</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">track_changes</span></div>
+              <span class="nav-label">Metas</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">bar_chart</span></div>
+              <span class="nav-label">Reportes</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PANTALLA 4: METAS SEMANALES (KAIZEN GOALS) -->
+      <!-- ========================================== -->
+      <div class="screen-column">
+        <div class="screen-label-badge">Pantalla 4: Metas Semanales</div>
+        <div class="phone-canvas">
+          <!-- Status Bar -->
+          <div class="android-status-bar">
+            <span>10:30</span>
+            <div class="status-icons">
+              <span class="material-symbols-outlined" style="font-size: 14px;">wifi</span>
+              <span class="material-symbols-outlined" style="font-size: 14px;">battery_full</span>
+            </div>
+          </div>
+
+          <!-- App Bar -->
+          <div class="m3-top-app-bar">
+            <div class="app-bar-brand" style="color: var(--md-sys-color-on-surface);">
+              <span>Metas Semanales</span>
+            </div>
+            <button class="icon-btn-m3" title="Añadir Meta">
+              <span class="material-symbols-outlined" style="font-size: 22px;">add</span>
+            </button>
+          </div>
+
+          <!-- Content Body -->
+          <div class="m3-content-scroll">
+            <!-- Selector de Semana -->
+            <div class="m3-card" style="padding: 8px 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <button class="icon-btn-m3" style="width: 32px; height: 32px;">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">chevron_left</span>
+                </button>
+                <strong style="font-size: 12px; color: var(--md-sys-color-on-surface);">Semana 45 (02 - 08 Noviembre)</strong>
+                <button class="icon-btn-m3" style="width: 32px; height: 32px;">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">chevron_right</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Compromiso Total (HU-08) -->
+            <div class="m3-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 13px; font-weight: 700; color: var(--md-sys-color-on-surface);">Compromiso Total Kaizen</span>
+                <span class="m3-chip success">70% Completado</span>
+              </div>
+              <div style="font-size: 22px; font-weight: 800; color: var(--md-sys-color-on-surface); margin: 2px 0;">
+                14.0 / 20.0 hrs
+              </div>
+              <div class="m3-linear-progress" style="height: 12px;">
+                <div class="m3-progress-bar" style="width: 70%;"></div>
+              </div>
+              <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">
+                Ritmo óptimo: Falta completar 6 horas antes del domingo.
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+              <span style="font-size: 13px; font-weight: 800; color: var(--md-sys-color-on-surface);">Metas por Asignatura</span>
+              <span style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">4 Asignadas</span>
+            </div>
+
+            <!-- Materia 1: En Progreso -->
+            <div class="m3-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="subject-swatch" style="background: var(--sub-mobile);"></span>
+                  <strong style="font-size: 12px; color: var(--md-sys-color-on-surface);">Aplicaciones Móviles I</strong>
+                </div>
+                <span class="m3-chip">5.0 / 6.0 hrs</span>
+              </div>
+              <div class="m3-linear-progress">
+                <div class="m3-progress-bar" style="width: 83%;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 10.5px;">
+                <span style="font-weight: 700; color: var(--md-sys-color-on-surface);">83% logrado</span>
+                <span style="color: var(--md-sys-color-on-surface-variant);">Falta 1h 00m</span>
+              </div>
+            </div>
+
+            <!-- Materia 2: Cumplida 100% (Verde) -->
+            <div class="m3-card success-tonal">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="subject-swatch" style="background: var(--sub-os);"></span>
+                  <strong style="font-size: 12px; color: var(--md-sys-color-on-surface);">Sistemas Operativos</strong>
+                </div>
+                <span class="m3-chip success">🎉 100% CUMPLIDA</span>
+              </div>
+              <div class="m3-linear-progress">
+                <div class="m3-progress-bar success" style="width: 100%;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 10.5px; color: var(--md-sys-color-success); font-weight: 700;">
+                <span>5.0 / 5.0 hrs completadas</span>
+                <span>¡Felicitaciones! Objetivo alcanzado</span>
+              </div>
+            </div>
+
+            <!-- Materia 3: En Progreso -->
+            <div class="m3-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="subject-swatch" style="background: var(--sub-networks);"></span>
+                  <strong style="font-size: 12px; color: var(--md-sys-color-on-surface);">Redes de Computadoras II</strong>
+                </div>
+                <span class="m3-chip">3.0 / 4.0 hrs</span>
+              </div>
+              <div class="m3-linear-progress">
+                <div class="m3-progress-bar" style="width: 75%;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 10.5px;">
+                <span style="font-weight: 700; color: var(--md-sys-color-on-surface);">75% logrado</span>
+                <span style="color: var(--md-sys-color-on-surface-variant);">Falta 1h 00m</span>
+              </div>
+            </div>
+
+            <!-- Materia 4: Rezagada (Alerta Roja) -->
+            <div class="m3-card error-tonal">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="subject-swatch" style="background: var(--sub-calc);"></span>
+                  <strong style="font-size: 12px; color: var(--md-sys-color-on-surface);">Cálculo II</strong>
+                </div>
+                <span class="m3-chip streak">1.0 / 5.0 hrs</span>
+              </div>
+              <div class="m3-linear-progress">
+                <div class="m3-progress-bar error" style="width: 20%;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 10.5px; color: var(--md-sys-color-error); font-weight: 700;">
+                <span>20% logrado</span>
+                <span>⚠️ Asignatura rezagada: faltan 4h</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation Bar -->
+          <nav class="m3-bottom-nav">
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">home</span></div>
+              <span class="nav-label">Inicio</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">menu_book</span></div>
+              <span class="nav-label">Materias</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">timer</span></div>
+              <span class="nav-label">Enfoque</span>
+            </button>
+            <button class="bottom-nav-item active">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">track_changes</span></div>
+              <span class="nav-label">Metas</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">bar_chart</span></div>
+              <span class="nav-label">Reportes</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PANTALLA 5: REPORTES Y ESTADÍSTICAS        -->
+      <!-- ========================================== -->
+      <div class="screen-column">
+        <div class="screen-label-badge">Pantalla 5: Reportes y Estadísticas</div>
+        <div class="phone-canvas">
+          <!-- Status Bar -->
+          <div class="android-status-bar">
+            <span>10:30</span>
+            <div class="status-icons">
+              <span class="material-symbols-outlined" style="font-size: 14px;">wifi</span>
+              <span class="material-symbols-outlined" style="font-size: 14px;">battery_full</span>
+            </div>
+          </div>
+
+          <!-- App Bar -->
+          <div class="m3-top-app-bar">
+            <div class="app-bar-brand" style="color: var(--md-sys-color-on-surface);">
+              <span>Estadísticas & Reportes</span>
+            </div>
+            <button class="icon-btn-m3" title="Exportar Resumen">
+              <span class="material-symbols-outlined" style="font-size: 22px;">share</span>
+            </button>
+          </div>
+
+          <!-- Content Body -->
+          <div class="m3-content-scroll">
+            <!-- Selector Periodo -->
+            <div style="display: flex; gap: 4px; background: var(--md-sys-color-surface-variant); padding: 4px; border-radius: 10px;">
+              <button class="m3-btn m3-btn-filled m3-btn-sm" style="flex: 1;">Semana</button>
+              <button class="m3-btn m3-btn-sm" style="flex: 1; background: transparent; color: var(--md-sys-color-on-surface-variant);">Mes</button>
+              <button class="m3-btn m3-btn-sm" style="flex: 1; background: transparent; color: var(--md-sys-color-on-surface-variant);">Historial</button>
+            </div>
+
+            <!-- Métricas Clave (Unificadas en 14h 00m) -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="m3-card" style="text-align: center; padding: 10px;">
+                <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">Horas Semanales</div>
+                <div style="font-size: 18px; font-weight: 800; color: var(--md-sys-color-primary);">14h 00m</div>
+              </div>
+              <div class="m3-card" style="text-align: center; padding: 10px;">
+                <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">Promedio Diario</div>
+                <div style="font-size: 18px; font-weight: 800; color: var(--md-sys-color-on-surface);">2h 00m / día</div>
+              </div>
+            </div>
+
+            <!-- PieChart Distribución (HU-11) -->
+            <div class="m3-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 13px; font-weight: 700; color: var(--md-sys-color-on-surface);">Distribución por Materia</span>
+                <span class="m3-chip">PieChart</span>
+              </div>
+              <div style="padding: 6px 0; text-align: center;">
+                <div class="pie-mockup-circle"></div>
+                <div style="font-size: 10.5px; color: var(--md-sys-color-on-surface-variant); margin-top: 8px;">
+                  ■ Móviles (45%) ■ SO (27%) ■ Redes (18%) ■ Cálculo (10%)
+                </div>
+              </div>
+            </div>
+
+            <!-- BarChart Días (HU-09) -->
+            <div class="m3-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 13px; font-weight: 700; color: var(--md-sys-color-on-surface);">Dedicación Diaria</span>
+                <span style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">Últimos 7 Días</span>
+              </div>
+              <div class="bar-histogram-chart">
+                <div class="bar-col"><div class="bar-fill" style="height: 38px;"></div><span style="font-size: 9px; font-weight: 700;">Lun</span></div>
+                <div class="bar-col"><div class="bar-fill" style="height: 52px;"></div><span style="font-size: 9px; font-weight: 700;">Mar</span></div>
+                <div class="bar-col"><div class="bar-fill" style="height: 42px;"></div><span style="font-size: 9px; font-weight: 700;">Mié</span></div>
+                <div class="bar-col"><div class="bar-fill" style="height: 62px;"></div><span style="font-size: 9px; font-weight: 700;">Jue</span></div>
+                <div class="bar-col"><div class="bar-fill" style="height: 48px;"></div><span style="font-size: 9px; font-weight: 700;">Vie</span></div>
+                <div class="bar-col"><div class="bar-fill" style="height: 28px;"></div><span style="font-size: 9px; font-weight: 700;">Sáb</span></div>
+                <div class="bar-col"><div class="bar-fill" style="height: 12px; background: var(--md-sys-color-outline-variant);"></div><span style="font-size: 9px; font-weight: 700;">Dom</span></div>
+              </div>
+            </div>
+
+            <!-- Histórico Cronológico (HU-10) -->
+            <div class="m3-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 12px; font-weight: 700; color: var(--md-sys-color-on-surface);">Histórico Reciente</span>
+                <span style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">Noviembre 2026</span>
+              </div>
+              <div style="font-size: 11px; display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--md-sys-color-outline-variant); padding-bottom: 4px;">
+                  <span>06 Nov • Móviles I (90 min)</span>
+                  <span style="color: var(--md-sys-color-on-surface-variant);">Árboles & Room</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--md-sys-color-outline-variant); padding-bottom: 4px;">
+                  <span>05 Nov • SO (60 min)</span>
+                  <span style="color: var(--md-sys-color-on-surface-variant);">Hilos y Sockets</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span>04 Nov • Redes II (90 min)</span>
+                  <span style="color: var(--md-sys-color-on-surface-variant);">Subnetting VLSM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation Bar -->
+          <nav class="m3-bottom-nav">
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">home</span></div>
+              <span class="nav-label">Inicio</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">menu_book</span></div>
+              <span class="nav-label">Materias</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">timer</span></div>
+              <span class="nav-label">Enfoque</span>
+            </button>
+            <button class="bottom-nav-item">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">track_changes</span></div>
+              <span class="nav-label">Metas</span>
+            </button>
+            <button class="bottom-nav-item active">
+              <div class="icon-wrapper"><span class="material-symbols-outlined" style="font-size: 20px;">bar_chart</span></div>
+              <span class="nav-label">Reportes</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- ESTADOS Y MODALES CLAVE DE HANDOFF                            -->
+    <!-- ============================================================== -->
+    <div class="states-section">
+      <h2 class="section-title">
+        <span class="material-symbols-outlined">layers</span>
+        Vistas de Detalle: Diálogo y Estados Clave de Componentes
+      </h2>
+
+      <div class="states-grid">
+        <!-- 1. Modal: Registrar Nueva Materia (HU-01) -->
+        <div class="state-card-preview">
+          <div style="font-size: 12px; font-weight: 800; color: var(--md-sys-color-primary); text-transform: uppercase;">
+            Modal: dialog_add_subject.xml (HU-01)
+          </div>
+          <div style="font-size: 16px; font-weight: 700; color: var(--md-sys-color-on-surface);">
+            Registrar Nueva Materia
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label style="font-size: 11px; font-weight: 600; color: var(--md-sys-color-on-surface-variant);">Nombre de la Asignatura</label>
+            <div style="background: var(--md-sys-color-background); border: 1.5px solid var(--md-sys-color-outline); border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 600;">
+              Aplicaciones Móviles I
+            </div>
+
+            <label style="font-size: 11px; font-weight: 600; color: var(--md-sys-color-on-surface-variant); margin-top: 4px;">Sigla o Código</label>
+            <div style="background: var(--md-sys-color-background); border: 1.5px solid var(--md-sys-color-outline); border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 600;">
+              INF-312
+            </div>
+
+            <label style="font-size: 11px; font-weight: 600; color: var(--md-sys-color-on-surface-variant); margin-top: 4px;">Color distintivo:</label>
+            <div style="display: flex; gap: 10px; margin-top: 2px;">
+              <div style="width: 28px; height: 28px; background: var(--sub-mobile); border-radius: 6px; outline: 2.5px solid var(--md-sys-color-primary); outline-offset: 2px;"></div>
+              <div style="width: 28px; height: 28px; background: var(--sub-os); border-radius: 6px;"></div>
+              <div style="width: 28px; height: 28px; background: var(--sub-networks); border-radius: 6px;"></div>
+              <div style="width: 28px; height: 28px; background: var(--sub-calc); border-radius: 6px;"></div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+            <button class="m3-btn m3-btn-outlined m3-btn-sm">Cancelar</button>
+            <button class="m3-btn m3-btn-filled m3-btn-sm">Guardar Materia</button>
+          </div>
+        </div>
+
+        <!-- 2. Estado Vacío (Empty State) -->
+        <div class="state-card-preview" style="text-align: center; justify-content: center; align-items: center; padding: 28px;">
+          <div style="font-size: 11px; font-weight: 800; color: var(--md-sys-color-on-surface-variant); text-transform: uppercase;">
+            Estado Vacío: Agenda / Materias
+          </div>
+          <span class="material-symbols-outlined" style="font-size: 48px; color: var(--md-sys-color-outline); margin: 8px 0;">
+            folder_open
+          </span>
+          <div style="font-size: 13.5px; font-weight: 700; color: var(--md-sys-color-on-surface);">
+            No tienes materias registradas
+          </div>
+          <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant); line-height: 1.4;">
+            Pulsa el botón + para registrar tu primera asignatura bajo el método 5S.
+          </div>
+          <button class="m3-btn m3-btn-filled m3-btn-sm" style="margin-top: 8px;">
+            <span class="material-symbols-outlined" style="font-size: 16px;">add</span> Registrar Materia
+          </button>
+        </div>
+
+        <!-- 3. Estado Cargando (Skeleton / Shimmer) -->
+        <div class="state-card-preview" style="gap: 12px;">
+          <div style="font-size: 11px; font-weight: 800; color: var(--md-sys-color-on-surface-variant); text-transform: uppercase;">
+            Estado Cargando: Shimmer Layout
+          </div>
+          <div style="width: 50%; height: 16px; background: var(--md-sys-color-surface-variant); border-radius: 4px;"></div>
+          <div style="width: 100%; height: 60px; background: var(--md-sys-color-surface-variant); border-radius: 12px;"></div>
+          <div style="width: 100%; height: 44px; background: var(--md-sys-color-surface-variant); border-radius: 12px;"></div>
+          <div style="width: 80%; height: 14px; background: var(--md-sys-color-surface-variant); border-radius: 4px;"></div>
+        </div>
+
+        <!-- 4. Variantes de Metas: Cumplida vs Rezagada -->
+        <div class="state-card-preview" style="gap: 12px;">
+          <div style="font-size: 11px; font-weight: 800; color: var(--md-sys-color-on-surface-variant); text-transform: uppercase;">
+            Comparativa de Metas (HU-08)
+          </div>
+
+          <!-- Cumplida -->
+          <div class="m3-card success-tonal" style="padding: 10px;">
+            <div style="display: flex; justify-content: space-between;">
+              <strong style="font-size: 11.5px;">Sistemas Operativos</strong>
+              <span class="m3-chip success" style="font-size: 9.5px;">🎉 100% CUMPLIDA</span>
+            </div>
+            <div style="font-size: 10px; color: var(--md-sys-color-success); font-weight: 700; margin-top: 4px;">
+              ¡Felicitaciones! Objetivo alcanzado
+            </div>
+          </div>
+
+          <!-- Rezagada -->
+          <div class="m3-card error-tonal" style="padding: 10px;">
+            <div style="display: flex; justify-content: space-between;">
+              <strong style="font-size: 11.5px;">Cálculo II</strong>
+              <span class="m3-chip streak" style="font-size: 9.5px;">⚠️ 20% Logrado</span>
+            </div>
+            <div style="font-size: 10px; color: var(--md-sys-color-error); font-weight: 700; margin-top: 4px;">
+              Asignatura rezagada: faltan 4h
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function setTheme(mode) {
+      const body = document.getElementById('appBody');
+      const btnLight = document.getElementById('btnLight');
+      const btnDark = document.getElementById('btnDark');
+
+      if (mode === 'dark') {
+        body.classList.add('theme-dark');
+        btnDark.classList.add('active');
+        btnLight.classList.remove('active');
+      } else {
+        body.classList.remove('theme-dark');
+        btnLight.classList.add('active');
+        btnDark.classList.remove('active');
+      }
+    }
+  </script>
+</body>
+</html>
+

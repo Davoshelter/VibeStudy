@@ -1,0 +1,61 @@
+# ==============================================================================
+# Gradle & Build Artifacts
+# ==============================================================================
+.gradle/
+build/
+*/build/
+bin/
+out/
+
+# Compiled class & package files
+*.class
+*.dex
+*.apk
+*.ap_
+*.aab
+*.aar
+
+# ==============================================================================
+# Local Configuration & Environment (Sensitive)
+# ==============================================================================
+# SDK & environment specific paths
+local.properties
+
+# Keystores & Signing credentials
+*.jks
+*.keystore
+signing.properties
+
+# ==============================================================================
+# Android Studio / IntelliJ IDEA
+# ==============================================================================
+*.iml
+.idea/
+
+# Legacy / Editor specifics
+captures/
+.navigation/
+.externalNativeBuild
+.cxx/
+
+# ==============================================================================
+# VS Code
+# ==============================================================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.code-workspace
+
+# ==============================================================================
+# Logs & System Files
+# ==============================================================================
+*.log
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# ==============================================================================
+# Documentación, Prototipos y Archivos de IA (MANTENER EN EL REPOSITORIO)
+# ==============================================================================
+# Archivos como prompt_arquitectura_estudio.md, prototipo_HF.html, ComoIniciarVSCODE.txt
+# se mantienen explícitamente rastreados por Git.

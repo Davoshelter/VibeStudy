@@ -1,0 +1,70 @@
+================================================================================
+           GUÍA DE INICIO RÁPIDO Y EJECUCIÓN EN VS CODE (SIN ANDROID STUDIO)
+================================================================================
+
+--- PASO 1: PRIMERA TERMINAL (Iniciar Emulador Ligero) ---
+~/Android/Sdk/emulator/emulator -avd Medium_Phone_API_37.0 -no-audio -no-boot-anim -camera-back none -camera-front none -gpu host
+
+* Nota: Si creas otro emulador con otro nombre, cambia "Medium_Phone_API_37.0" por el tuyo.
+  (Puedes ver tus emuladores con: ~/Android/Sdk/emulator/emulator -list-avds)
+
+
+--- PASO 2: SEGUNDA TERMINAL (Instalar y Abrir la App) ---
+# 1. Esperar a que el emulador esté conectado:
+adb wait-for-device
+
+# 2. Compilar e instalar la app:
+./gradlew installDebug
+
+# 3. Lanzar la app en pantalla:
+adb shell am start -n com.david.mystudio/.MainActivity
+
+
+================================================================================
+   ¿QUÉ DEBO CAMBIAR SI CREO OTRO PROYECTO PARA EVITAR ERRORES? (CHECKLIST)
+================================================================================
+
+Cuando crees un nuevo proyecto Android, para que funcione directamente en VS Code 
+y no vuelva a salir el error de "jlink" ni problemas de rendimiento, haz lo siguiente:
+
+--------------------------------------------------------------------------------
+1. EN EL ARCHIVO: gradle/gradle-daemon-jvm.properties
+--------------------------------------------------------------------------------
+Abre este archivo y busca la última línea:
+   toolchainVersion=25   <--- (O cualquier otra versión distinta a 21)
+
+Cámbiala a:
+   toolchainVersion=21
+
+* ¿Por qué? Porque tu sistema operativo tiene instalado OpenJDK 21. Si dejas otra 
+  versión, Gradle buscará en las extensiones de VS Code y tomará un Java incompleto 
+  que no tiene "jlink", haciendo fallar la compilación.
+
+--------------------------------------------------------------------------------
+2. EN EL ARCHIVO: gradle.properties (Raíz del proyecto)
+--------------------------------------------------------------------------------
+Al final del archivo, agrega estas líneas para asegurar el JDK y cuidar la RAM de tu PC:
+
+   # Forzar el JDK completo del sistema (evita error de jlink):
+   org.gradle.java.home=/usr/lib/jvm/java-21-openjdk-amd64
+
+   # Optimización para PC de bajos recursos (evita congelamientos):
+   org.gradle.workers.max=2
+   org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m -XX:+UseParallelGC
+
+--------------------------------------------------------------------------------
+3. EN EL COMANDO DE EJECUCIÓN (Línea de adb shell):
+--------------------------------------------------------------------------------
+En el comando:
+   adb shell am start -n com.david.mystudio/.MainActivity
+                         ^^^^^^^^^^^^^^^^^^
+Cambia "com.david.mystudio" por el paquete (applicationId) de tu nuevo proyecto.
+
+* ¿Dónde encontrarlo?
+  Abre el archivo `app/build.gradle.kts` de tu nuevo proyecto y busca:
+     defaultConfig {
+         applicationId = "com.tu_nombre.tu_app"
+     }
+  Usa ese identificador seguido de `/.MainActivity`.
+
+================================================================================
