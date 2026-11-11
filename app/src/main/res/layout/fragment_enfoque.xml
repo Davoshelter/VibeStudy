@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_medium">
+
+        <!-- Selector de Asignatura Activa -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/enfoque_lbl_asignatura"
+            android:textColor="@color/color_on_surface_variant"
+            android:textSize="@dimen/text_size_caption" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_micro"
+            android:layout_marginBottom="@dimen/spacing_large"
+            app:cardCornerRadius="@dimen/corner_radius_card"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/color_outline_variant"
+            app:strokeWidth="@dimen/stroke_width_card">
+
+            <Spinner
+                android:id="@+id/spnAsignaturaEnfoque"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:paddingHorizontal="@dimen/spacing_small" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Anillo Circular del Temporizador -->
+        <FrameLayout
+            android:layout_width="@dimen/timer_circle_size"
+            android:layout_height="@dimen/timer_circle_size"
+            android:layout_marginBottom="@dimen/spacing_medium"
+            android:background="@drawable/shape_circle_timer">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing_medium">
+
+                <TextView
+                    android:id="@+id/txtFaseTecnicaEnfoque"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
+                    android:letterSpacing="0.05"
+                    android:text="BLOQUE POMODORO 1/4"
+                    android:textColor="@color/color_on_surface_variant"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/txtTiempoCronometro"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text="@string/enfoque_tiempo_inicial"
+                    android:textColor="@color/color_on_surface"
+                    android:textSize="@dimen/text_size_timer" />
+
+                <TextView
+                    android:id="@+id/txtEstadoCronometro"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/enfoque_estado_activo"
+                    android:textColor="@color/color_on_surface_variant"
+                    android:textSize="@dimen/text_size_caption" />
+
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- Información de Sesión y Neto Hoy -->
+        <TextView
+            android:id="@+id/txtMetadatosSesion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_large"
+            android:text="Sesión activa | Enfoque Zanshin"
+            android:textColor="@color/color_on_surface_variant"
+            android:textSize="@dimen/text_size_caption" />
+
+        <!-- Botones de Acción (Pausar / Finalizar / Iniciar) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_medium"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPausarReanudarEnfoque"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:layout_weight="1"
+                android:text="@string/enfoque_btn_pausar"
+                android:textSize="@dimen/text_size_caption"
+                app:cornerRadius="@dimen/corner_radius_card"
+                app:icon="@drawable/ic_pause" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFinalizarEnfoque"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/color_error_container"
+                android:text="@string/enfoque_btn_finalizar"
+                android:textColor="@color/color_error"
+                android:textSize="@dimen/text_size_caption"
+                app:cornerRadius="@dimen/corner_radius_card"
+                app:icon="@drawable/ic_stop"
+                app:iconTint="@color/color_error" />
+
+        </LinearLayout>
+
+        <!-- Botón Iniciar (cuando no está activa) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnIniciarSesionEnfoque"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="@dimen/spacing_medium"
+            android:text="@string/enfoque_btn_iniciar"
+            android:visibility="gone"
+            app:cornerRadius="@dimen/corner_radius_card"
+            app:icon="@drawable/ic_play_arrow" />
+
+        <!-- Bitácora de Observaciones y Notas (HU-06) -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="@dimen/corner_radius_card"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/color_outline_variant"
+            app:strokeWidth="@dimen/stroke_width_card">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing_medium">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="@string/enfoque_notas_titulo"
+                    android:textColor="@color/color_on_surface"
+                    android:textSize="@dimen/text_size_caption"
+                    android:layout_marginBottom="@dimen/spacing_micro" />
+
+                <EditText
+                    android:id="@+id/edtNotasSesion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/shape_swatch_rounded"
+                    android:backgroundTint="@color/color_surface_variant"
+                    android:gravity="top|start"
+                    android:hint="@string/enfoque_notas_hint"
+                    android:lines="3"
+                    android:padding="@dimen/spacing_small"
+                    android:textColor="@color/color_on_surface"
+                    android:textSize="@dimen/text_size_caption" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

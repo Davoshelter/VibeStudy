@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_background">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_medium">
+
+            <!-- Selector de Semana -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_medium"
+                app:cardCornerRadius="@dimen/corner_radius_card"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/color_outline_variant"
+                app:strokeWidth="@dimen/stroke_width_card">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:paddingHorizontal="@dimen/spacing_micro">
+
+                    <ImageButton
+                        android:id="@+id/ibtnSemanaAnterior"
+                        android:layout_width="@dimen/btn_icon_size"
+                        android:layout_height="@dimen/btn_icon_size"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Semana anterior"
+                        android:src="@drawable/ic_chevron_left" />
+
+                    <TextView
+                        android:id="@+id/txtSemanaSelector"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:fontFamily="sans-serif-bold"
+                        android:textColor="@color/color_on_surface"
+                        android:textSize="@dimen/text_size_body"
+                        tools:text="Semana 45 (02 - 08 Noviembre)" />
+
+                    <ImageButton
+                        android:id="@+id/ibtnSemanaSiguiente"
+                        android:layout_width="@dimen/btn_icon_size"
+                        android:layout_height="@dimen/btn_icon_size"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Semana siguiente"
+                        android:src="@drawable/ic_chevron_right" />
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Compromiso Total Kaizen -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/crdCompromisoTotal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_medium"
+                app:cardCornerRadius="@dimen/corner_radius_card"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/color_outline_variant"
+                app:strokeWidth="@dimen/stroke_width_card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_medium">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="@string/metas_compromiso_total"
+                            android:textColor="@color/color_on_surface"
+                            android:textSize="@dimen/text_size_subtitle" />
+
+                        <TextView
+                            android:id="@+id/txtBadgeCompromisoTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="@drawable/shape_swatch_rounded"
+                            android:backgroundTint="@color/color_success_container"
+                            android:fontFamily="sans-serif-bold"
+                            android:paddingHorizontal="@dimen/spacing_small"
+                            android:paddingVertical="@dimen/spacing_micro"
+                            android:textColor="@color/color_success"
+                            android:textSize="@dimen/text_size_caption"
+                            tools:text="70% Completado" />
+                    </RelativeLayout>
+
+                    <TextView
+                        android:id="@+id/txtHorasCompromisoTotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="@dimen/spacing_micro"
+                        android:fontFamily="sans-serif-black"
+                        android:textColor="@color/color_on_surface"
+                        android:textSize="@dimen/text_size_headline"
+                        tools:text="14.0 / 20.0 hrs" />
+
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/prgCompromisoTotal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/spacing_small"
+                        app:indicatorColor="@color/color_primary"
+                        app:trackColor="@color/color_surface_variant"
+                        app:trackCornerRadius="6dp"
+                        app:trackThickness="@dimen/progress_bar_height_large"
+                        tools:progress="70" />
+
+                    <TextView
+                        android:id="@+id/txtRitmoOptimoMetas"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ritmo óptimo: Mantén la constancia en tus sesiones diarias."
+                        android:textColor="@color/color_on_surface_variant"
+                        android:textSize="@dimen/text_size_caption" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Encabezado de Metas por Asignatura -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_small">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="@string/metas_por_asignatura"
+                    android:textColor="@color/color_on_surface"
+                    android:textSize="@dimen/text_size_subtitle" />
+
+                <TextView
+                    android:id="@+id/txtConteoMetas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:textColor="@color/color_on_surface_variant"
+                    android:textSize="@dimen/text_size_caption"
+                    tools:text="4 Asignadas" />
+            </RelativeLayout>
+
+            <!-- Estado Vacío -->
+            <TextView
+                android:id="@+id/txtMetasVacias"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="@dimen/spacing_large"
+                android:text="@string/metas_empty_subtitulo"
+                android:textColor="@color/color_on_surface_variant"
+                android:textSize="@dimen/text_size_caption"
+                android:visibility="gone" />
+
+            <!-- RecyclerView Metas -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMetas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_meta" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- FAB Añadir Meta (HU-07) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAgregarMeta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/spacing_medium"
+        android:contentDescription="Fijar nueva meta semanal"
+        android:src="@drawable/ic_add"
+        app:backgroundTint="@color/color_primary"
+        app:tint="@color/color_on_primary" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

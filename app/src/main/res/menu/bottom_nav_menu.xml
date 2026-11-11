@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_inicio"
+        android:icon="@drawable/ic_home"
+        android:title="@string/nav_inicio" />
+
+    <item
+        android:id="@+id/menu_materias"
+        android:icon="@drawable/ic_menu_book"
+        android:title="@string/nav_materias" />
+
+    <item
+        android:id="@+id/menu_enfoque"
+        android:icon="@drawable/ic_timer"
+        android:title="@string/nav_enfoque" />
+
+    <item
+        android:id="@+id/menu_metas"
+        android:icon="@drawable/ic_track_changes"
+        android:title="@string/nav_metas" />
+
+    <item
+        android:id="@+id/menu_reportes"
+        android:icon="@drawable/ic_bar_chart"
+        android:title="@string/nav_reportes" />
+</menu>

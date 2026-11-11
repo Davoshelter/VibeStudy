@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_medium">
+
+        <!-- Cabecera de Saludo y Semestre -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_medium">
+
+            <TextView
+                android:id="@+id/txtSaludoUsuario"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-bold"
+                android:text="@string/dashboard_saludo"
+                android:textColor="@color/color_on_surface"
+                android:textSize="@dimen/text_size_headline"
+                app:layout_constraintEnd_toStartOf="@+id/txtChipSemestre"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/txtSubtituloDashboard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/dashboard_subtitulo"
+                android:textColor="@color/color_on_surface_variant"
+                android:textSize="@dimen/text_size_caption"
+                app:layout_constraintEnd_toStartOf="@+id/txtChipSemestre"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txtSaludoUsuario" />
+
+            <TextView
+                android:id="@+id/txtChipSemestre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_swatch_rounded"
+                android:backgroundTint="@color/color_surface_variant"
+                android:fontFamily="sans-serif-medium"
+                android:paddingHorizontal="@dimen/spacing_small"
+                android:paddingVertical="@dimen/spacing_micro"
+                android:text="@string/dashboard_chip_semestre"
+                android:textColor="@color/color_primary"
+                android:textSize="@dimen/text_size_caption"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Tarjeta Racha Kaizen -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/crdRachaKaizen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_medium"
+            app:cardCornerRadius="@dimen/corner_radius_card"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/color_outline_variant"
+            app:strokeWidth="@dimen/stroke_width_card">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/spacing_medium">
+
+                <ImageView
+                    android:id="@+id/imgIconoFuego"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:contentDescription="@string/cd_icono_racha"
+                    android:src="@drawable/ic_fire"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/txtTituloRacha"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_small"
+                    android:layout_marginEnd="@dimen/spacing_small"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="@string/dashboard_racha_titulo"
+                    android:textColor="@color/color_on_surface"
+                    android:textSize="@dimen/text_size_subtitle"
+                    app:layout_constraintEnd_toStartOf="@+id/txtBadgeRacha"
+                    app:layout_constraintStart_toEndOf="@+id/imgIconoFuego"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/txtDescripcionRacha"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_small"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginEnd="@dimen/spacing_small"
+                    android:text="@string/dashboard_racha_descripcion"
+                    android:textColor="@color/color_on_surface_variant"
+                    android:textSize="@dimen/text_size_caption"
+                    app:layout_constraintEnd_toStartOf="@+id/txtBadgeRacha"
+                    app:layout_constraintStart_toEndOf="@+id/imgIconoFuego"
+                    app:layout_constraintTop_toBottomOf="@+id/txtTituloRacha" />
+
+                <TextView
+                    android:id="@+id/txtBadgeRacha"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/shape_swatch_rounded"
+                    android:backgroundTint="@color/color_streak_container"
+                    android:fontFamily="sans-serif-bold"
+                    android:paddingHorizontal="@dimen/spacing_medium"
+                    android:paddingVertical="@dimen/spacing_micro"
+                    android:textColor="@color/color_streak"
+                    android:textSize="@dimen/text_size_body"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="4 Días" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Tarjeta Meta Semanal Global -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/crdMetaGlobal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_medium"
+            app:cardCornerRadius="@dimen/corner_radius_card"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/color_outline_variant"
+            app:strokeWidth="@dimen/stroke_width_card">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing_medium">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/txtTituloMetaGlobal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="@string/dashboard_meta_global_titulo"
+                        android:textColor="@color/color_on_surface"
+                        android:textSize="@dimen/text_size_subtitle" />
+
+                    <TextView
+                        android:id="@+id/txtHorasMetaGlobal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:fontFamily="sans-serif-bold"
+                        android:textColor="@color/color_primary"
+                        android:textSize="@dimen/text_size_subtitle"
+                        tools:text="14.0 / 20.0 hrs" />
+                </RelativeLayout>
+
+                <!-- Barra de Progreso Lineal -->
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/prgMetaGlobal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_small"
+                    android:layout_marginBottom="@dimen/spacing_small"
+                    app:indicatorColor="@color/color_primary"
+                    app:trackColor="@color/color_surface_variant"
+                    app:trackCornerRadius="4dp"
+                    app:trackThickness="@dimen/progress_bar_height"
+                    tools:progress="70" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/txtPorcentajeMetaGlobal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-bold"
+                        android:textColor="@color/color_on_surface"
+                        android:textSize="@dimen/text_size_caption"
+                        tools:text="70% completado" />
+
+                    <TextView
+                        android:id="@+id/txtHorasRestantesMetaGlobal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:textColor="@color/color_on_surface_variant"
+                        android:textSize="@dimen/text_size_caption"
+                        tools:text="Faltan 6.0 hrs para el domingo" />
+                </RelativeLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Botón CTA Iniciar Sesión de Enfoque -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnIniciarEnfoqueDashboard"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="@dimen/spacing_medium"
+            android:text="@string/dashboard_btn_iniciar_enfoque"
+            android:textSize="@dimen/text_size_body"
+            app:cornerRadius="@dimen/corner_radius_card"
+            app:icon="@drawable/ic_play_arrow"
+            app:iconGravity="textStart" />
+
+        <!-- Banner Mindfulness Shinrin-yoku -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_medium"
+            android:background="@drawable/shape_zen_banner"
+            android:padding="@dimen/spacing_small">
+
+            <ImageView
+                android:id="@+id/imgIconoZen"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_spa"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/txtMensajeZen"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:text="@string/dashboard_shinrin_yoku"
+                android:textColor="@color/color_zen"
+                android:textSize="@dimen/text_size_caption"
+                android:fontFamily="sans-serif-medium"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imgIconoZen"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Sección Agenda de Hoy -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_small">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-bold"
+                android:text="@string/dashboard_agenda_titulo"
+                android:textColor="@color/color_on_surface"
+                android:textSize="@dimen/text_size_subtitle" />
+
+            <TextView
+                android:id="@+id/btnPlanificarSesionAgenda"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:fontFamily="sans-serif-bold"
+                android:text="@string/dashboard_btn_planificar_sesion"
+                android:textColor="@color/color_primary"
+                android:textSize="@dimen/text_size_caption" />
+        </RelativeLayout>
+
+        <!-- RecyclerView Agenda -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAgendaHoy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            tools:itemCount="2"
+            tools:listitem="@layout/item_agenda_sesion" />
+
+        <TextView
+            android:id="@+id/txtAgendaVacia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="@dimen/spacing_medium"
+            android:text="@string/dashboard_agenda_vacia"
+            android:textColor="@color/color_on_surface_variant"
+            android:textSize="@dimen/text_size_caption"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

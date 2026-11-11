@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="@dimen/spacing_small">
+
+    <TextView
+        android:id="@+id/txtDetalleSesionHistorico"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/color_on_surface"
+        android:textSize="@dimen/text_size_caption"
+        tools:text="06 Nov • Móviles I (90 min)" />
+
+    <TextView
+        android:id="@+id/txtNotasHistorico"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/color_on_surface_variant"
+        android:textSize="@dimen/text_size_caption"
+        tools:text="Árboles y Room" />
+
+</LinearLayout>

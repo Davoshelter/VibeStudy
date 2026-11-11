@@ -1,5 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Colores base y neutros -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Material Design 3 Palette (StudyVibe) -->
+    <color name="color_primary">#1A73E8</color>
+    <color name="color_on_primary">#FFFFFF</color>
+    <color name="color_primary_container">#D3E3FD</color>
+    <color name="color_on_primary_container">#041E49</color>
+
+    <color name="color_background">#F8F9FA</color>
+    <color name="color_on_background">#1F1F1F</color>
+
+    <color name="color_surface">#FFFFFF</color>
+    <color name="color_on_surface">#1F1F1F</color>
+    <color name="color_surface_variant">#F0F4F9</color>
+    <color name="color_on_surface_variant">#444746</color>
+
+    <color name="color_outline">#747775</color>
+    <color name="color_outline_variant">#E0E3E1</color>
+
+    <!-- Semánticos (Éxito, Error, Racha) -->
+    <color name="color_success">#2E7D32</color>
+    <color name="color_success_container">#E8F5E9</color>
+    <color name="color_error">#BA1A1A</color>
+    <color name="color_error_container">#FFDAD6</color>
+
+    <color name="color_streak">#E65100</color>
+    <color name="color_streak_container">#FFE0B2</color>
+
+    <!-- Banner Mindfulness (Shinrin-yoku) -->
+    <color name="color_zen">#1B5E20</color>
+    <color name="color_zen_bg">#E8F5E9</color>
+    <color name="color_zen_border">#C8E6C9</color>
+
+    <!-- Colores oficiales de Materias (5S) -->
+    <color name="color_sub_mobile">#1E88E5</color>
+    <color name="color_sub_os">#43A047</color>
+    <color name="color_sub_networks">#FB8C00</color>
+    <color name="color_sub_calc">#8E24AA</color>
 </resources>

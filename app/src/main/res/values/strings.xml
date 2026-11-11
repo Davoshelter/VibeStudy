@@ -1,3 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Nombre de la Aplicación -->
     <string name="app_name">StudyVibe</string>
+    <string name="slogan_app">Planificación y Gestión del Tiempo de Estudio</string>
+
+    <!-- Navegación Inferior -->
+    <string name="nav_inicio">Inicio</string>
+    <string name="nav_materias">Materias</string>
+    <string name="nav_enfoque">Enfoque</string>
+    <string name="nav_metas">Metas</string>
+    <string name="nav_reportes">Reportes</string>
+
+    <!-- Pantalla 1: Inicio (Dashboard) -->
+    <string name="dashboard_saludo">Hola, Estudiante</string>
+    <string name="dashboard_subtitulo">Enfoque Zanshin y Kaizen Académico</string>
+    <string name="dashboard_chip_semestre">Semestre II-2026</string>
+    <string name="dashboard_racha_titulo">Racha de Estudio Kaizen</string>
+    <string name="dashboard_racha_descripcion">Días consecutivos con al menos 1 sesión</string>
+    <string name="dashboard_racha_formato">%1$d Días</string>
+    <string name="dashboard_meta_global_titulo">Meta Semanal Global</string>
+    <string name="dashboard_btn_iniciar_enfoque">Iniciar Sesión de Enfoque Ahora</string>
+    <string name="dashboard_shinrin_yoku">Shinrin-yoku: Recuerda tomar pausas de 5 min alejado de pantallas.</string>
+    <string name="dashboard_agenda_titulo">Agenda de Sesiones Hoy</string>
+    <string name="dashboard_agenda_vacia">No tienes sesiones programadas para hoy.</string>
+    <string name="dashboard_btn_planificar_sesion">+ Planificar Sesión</string>
+
+    <!-- Pantalla 2: Gestión de Materias -->
+    <string name="materias_titulo">Mis Materias</string>
+    <string name="materias_hint_buscar">Buscar asignatura por nombre o sigla…</string>
+    <string name="materias_metodo_5s">Método 5S: Orden</string>
+    <string name="materias_conteo_formato">%1$d Materias Registradas</string>
+    <string name="materias_empty_titulo">No tienes materias registradas</string>
+    <string name="materias_empty_subtitulo">Pulsa el botón + para registrar tu primera asignatura bajo el método 5S.</string>
+    <string name="materias_btn_registrar_primera">Registrar Materia</string>
+    <string name="materias_dialog_crear_titulo">Registrar Nueva Materia</string>
+    <string name="materias_dialog_editar_titulo">Editar Materia</string>
+    <string name="materias_campo_nombre">Nombre de la Asignatura</string>
+    <string name="materias_campo_sigla">Sigla o Código (ej. INF-312)</string>
+    <string name="materias_campo_color">Color distintivo:</string>
+    <string name="materias_confirmar_eliminar_titulo">¿Dar de baja materia?</string>
+    <string name="materias_confirmar_eliminar_mensaje">Esta acción ocultará la asignatura de los nuevos registros. Sus sesiones y estadísticas históricas se conservarán intactas.</string>
+
+    <!-- Pantalla 3: Enfoque Zanshin (Temporizador) -->
+    <string name="enfoque_titulo">Enfoque Zanshin</string>
+    <string name="enfoque_lbl_asignatura">Asignatura en estudio:</string>
+    <string name="enfoque_sin_materia_alerta">Por favor selecciona una materia para iniciar</string>
+    <string name="enfoque_bloque_pomodoro">BLOQUE POMODORO %1$d/4</string>
+    <string name="enfoque_bloque_libre">TIEMPO LIBRE ACUMULADO</string>
+    <string name="enfoque_estado_activo">Estado: Activo • Pantalla encendida</string>
+    <string name="enfoque_estado_pausado">Estado: Pausado</string>
+    <string name="enfoque_btn_iniciar">Iniciar Sesión</string>
+    <string name="enfoque_btn_pausar">Pausar Sesión</string>
+    <string name="enfoque_btn_reanudar">Reanudar Sesión</string>
+    <string name="enfoque_btn_finalizar">Finalizar Estudio</string>
+    <string name="enfoque_notas_titulo">Notas y tópicos cubiertos:</string>
+    <string name="enfoque_notas_hint">Escribe las observaciones o temas estudiados hoy…</string>
+    <string name="enfoque_tiempo_inicial">25:00</string>
+
+    <!-- Pantalla 4: Metas Semanales -->
+    <string name="metas_titulo">Metas Semanales</string>
+    <string name="metas_compromiso_total">Compromiso Total Kaizen</string>
+    <string name="metas_por_asignatura">Metas por Asignatura</string>
+    <string name="metas_dialog_titulo">Configurar Meta Semanal</string>
+    <string name="metas_campo_horas">Horas objetivo para la semana (1 a 50 hrs):</string>
+    <string name="metas_chip_cumplida">🎉 100% CUMPLIDA</string>
+    <string name="metas_chip_rezagada">⚠️ Rezagada</string>
+    <string name="metas_felicitacion">¡Felicitaciones! Objetivo semanal alcanzado</string>
+    <string name="metas_falta_formato">Faltan %1$s para la meta</string>
+    <string name="metas_empty_subtitulo">No tienes metas configuradas para esta semana. Pulsa el botón + para fijar un objetivo.</string>
+
+    <!-- Pantalla 5: Reportes y Estadísticas -->
+    <string name="reportes_titulo">Estadísticas &amp; Reportes</string>
+    <string name="reportes_tab_semana">Semana</string>
+    <string name="reportes_tab_mes">Mes</string>
+    <string name="reportes_kpi_horas">Horas Totales</string>
+    <string name="reportes_kpi_promedio">Promedio Diario</string>
+    <string name="reportes_distribucion_titulo">Distribución por Materia</string>
+    <string name="reportes_dedicacion_titulo">Dedicación Diaria</string>
+    <string name="reportes_historico_titulo">Histórico Reciente de Sesiones</string>
+    <string name="reportes_sin_datos">No hay sesiones de estudio registradas en este periodo. ¡Comienza una hoy!</string>
+
+    <!-- Botones y Acciones Genéricas -->
+    <string name="btn_guardar">Guardar</string>
+    <string name="btn_actualizar">Actualizar</string>
+    <string name="btn_cancelar">Cancelar</string>
+    <string name="btn_eliminar">Eliminar</string>
+    <string name="btn_editar">Editar</string>
+    <string name="btn_aceptar">Aceptar</string>
+
+    <!-- Mensajes de Error y Feedback -->
+    <string name="msg_exito_materia_guardada">Materia registrada correctamente</string>
+    <string name="msg_exito_materia_actualizada">Materia actualizada</string>
+    <string name="msg_exito_materia_eliminada">Materia dada de baja</string>
+    <string name="msg_exito_sesion_guardada">Sesión guardada con éxito</string>
+    <string name="msg_exito_meta_guardada">Meta semanal configurada</string>
+    <string name="msg_error_campos_obligatorios">Por favor completa todos los campos requeridos</string>
+
+    <!-- Accesibilidad -->
+    <string name="cd_eliminar_materia">Eliminar materia</string>
+    <string name="cd_editar_materia">Editar materia</string>
+    <string name="cd_icono_racha">Ícono de constancia y racha</string>
+    <string name="cd_agregar_materia">Registrar nueva materia</string>
 </resources>

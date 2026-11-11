@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/crdMateriaItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/spacing_small"
+    app:cardCornerRadius="@dimen/corner_radius_card"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/color_outline_variant"
+    app:strokeWidth="@dimen/stroke_width_card">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/spacing_medium">
+
+        <View
+            android:id="@+id/viewSwatchColor"
+            android:layout_width="@dimen/swatch_indicator_size"
+            android:layout_height="@dimen/swatch_indicator_size"
+            android:background="@drawable/shape_swatch_rounded"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:backgroundTint="@color/color_sub_mobile" />
+
+        <TextView
+            android:id="@+id/txtNombreMateria"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:layout_marginEnd="@dimen/spacing_small"
+            android:fontFamily="sans-serif-bold"
+            android:textColor="@color/color_on_surface"
+            android:textSize="@dimen/text_size_subtitle"
+            app:layout_constraintEnd_toStartOf="@+id/btnEditarMateria"
+            app:layout_constraintStart_toEndOf="@+id/viewSwatchColor"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Aplicaciones Móviles I" />
+
+        <TextView
+            android:id="@+id/txtDetalleMateria"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:layout_marginTop="@dimen/spacing_micro"
+            android:layout_marginEnd="@dimen/spacing_small"
+            android:textColor="@color/color_on_surface_variant"
+            android:textSize="@dimen/text_size_caption"
+            app:layout_constraintEnd_toStartOf="@+id/btnEditarMateria"
+            app:layout_constraintStart_toEndOf="@+id/viewSwatchColor"
+            app:layout_constraintTop_toBottomOf="@+id/txtNombreMateria"
+            tools:text="INF-312 • 5 sesiones • 7.5 hrs" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEditarMateria"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginEnd="@dimen/spacing_micro"
+            android:paddingHorizontal="@dimen/spacing_small"
+            android:paddingVertical="0dp"
+            android:text="@string/btn_editar"
+            android:textSize="@dimen/text_size_caption"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ibtnEliminarMateria"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/ibtnEliminarMateria"
+            android:layout_width="@dimen/btn_icon_size"
+            android:layout_height="@dimen/btn_icon_size"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_eliminar_materia"
+            android:src="@drawable/ic_delete_outline"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/color_error" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/crdMetaItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/spacing_small"
+    app:cardCornerRadius="@dimen/corner_radius_card"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/color_outline_variant"
+    app:strokeWidth="@dimen/stroke_width_card">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_medium">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/viewSwatchMeta"
+                android:layout_width="@dimen/swatch_indicator_size"
+                android:layout_height="@dimen/swatch_indicator_size"
+                android:background="@drawable/shape_swatch_rounded"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:backgroundTint="@color/color_sub_mobile" />
+
+            <TextView
+                android:id="@+id/txtNombreMateriaMeta"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:fontFamily="sans-serif-bold"
+                android:textColor="@color/color_on_surface"
+                android:textSize="@dimen/text_size_subtitle"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/txtChipProgresoMeta"
+                app:layout_constraintStart_toEndOf="@+id/viewSwatchMeta"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Aplicaciones Móviles I" />
+
+            <TextView
+                android:id="@+id/txtChipProgresoMeta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_swatch_rounded"
+                android:backgroundTint="@color/color_surface_variant"
+                android:fontFamily="sans-serif-bold"
+                android:paddingHorizontal="@dimen/spacing_small"
+                android:paddingVertical="@dimen/spacing_micro"
+                android:textColor="@color/color_primary"
+                android:textSize="@dimen/text_size_caption"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="5.0 / 6.0 hrs" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/prgMetaItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginBottom="@dimen/spacing_small"
+            app:indicatorColor="@color/color_primary"
+            app:trackColor="@color/color_surface_variant"
+            app:trackCornerRadius="4dp"
+            app:trackThickness="@dimen/progress_bar_height"
+            tools:progress="83" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/txtPorcentajeMetaItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/color_on_surface"
+                android:textSize="@dimen/text_size_caption"
+                tools:text="83% logrado" />
+
+            <TextView
+                android:id="@+id/txtDetalleFaltanteMeta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:textColor="@color/color_on_surface_variant"
+                android:textSize="@dimen/text_size_caption"
+                tools:text="Falta 1h 00m" />
+        </RelativeLayout>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
