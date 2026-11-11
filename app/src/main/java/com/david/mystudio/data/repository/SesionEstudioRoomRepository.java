@@ -101,4 +101,14 @@ public class SesionEstudioRoomRepository implements SesionEstudioRepository {
             executor.executeOnMain(() -> callback.onResult(sesiones));
         });
     }
+
+    @Override
+    public void sanearSesionesHuerfanas(String motivo, Callback<Integer> callback) {
+        executor.executeOnBackground(() -> {
+            int afectadas = sesionEstudioDao.cancelarSesionesEnCurso(motivo, System.currentTimeMillis());
+            if (callback != null) {
+                executor.executeOnMain(() -> callback.onResult(afectadas));
+            }
+        });
+    }
 }

@@ -48,6 +48,12 @@ public class EnfoqueFragment extends Fragment implements EnfoqueContract.View, S
             timerService = localBinder.getService();
             timerService.setListener(EnfoqueFragment.this);
             servicioEnlazado = true;
+            if (presenter != null) {
+                presenter.restaurarSesionActivaSiExiste();
+                if (timerService.isEstaCorriendo()) {
+                    presenter.sincronizarConServicio(timerService.getSegundosTranscurridos(), timerService.isEstaPausado());
+                }
+            }
         }
 
         @Override
@@ -89,9 +95,6 @@ public class EnfoqueFragment extends Fragment implements EnfoqueContract.View, S
                 return;
             }
             presenter.iniciarSesion(seleccionada.getId(), TipoTecnica.POMODORO);
-            if (timerService != null) {
-                timerService.iniciar(0);
-            }
         });
 
         btnPausarReanudar.setOnClickListener(v -> {
@@ -122,12 +125,16 @@ public class EnfoqueFragment extends Fragment implements EnfoqueContract.View, S
         super.onResume();
         if (presenter != null) {
             presenter.cargarMaterias();
+            presenter.restaurarSesionActivaSiExiste();
         }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (timerService != null) {
+            timerService.setListener(null);
+        }
         desenlazarServicio();
         if (presenter != null) {
             presenter.desvincularVista();
@@ -159,6 +166,18 @@ public class EnfoqueFragment extends Fragment implements EnfoqueContract.View, S
         }
         ArrayAdapter<Materia> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, materias);
         spnAsignatura.setAdapter(adapter);
+    }
+
+    @Override
+    public void seleccionarMateriaActiva(int idMateria) {
+        if (spnAsignatura == null || spnAsignatura.getAdapter() == null) return;
+        for (int i = 0; i < spnAsignatura.getAdapter().getCount(); i++) {
+            Object item = spnAsignatura.getAdapter().getItem(i);
+            if (item instanceof Materia && ((Materia) item).getId() == idMateria) {
+                spnAsignatura.setSelection(i);
+                break;
+            }
+        }
     }
 
     @Override
@@ -212,6 +231,13 @@ public class EnfoqueFragment extends Fragment implements EnfoqueContract.View, S
     public void mostrarError(String mensaje) {
         if (getContext() != null) {
             Toast.makeText(getContext(), mensaje, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void iniciarTemporizadorVisual(int segundosIniciales) {
+        if (timerService != null) {
+            timerService.iniciar(segundosIniciales);
         }
     }
 

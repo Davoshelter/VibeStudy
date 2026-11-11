@@ -13,6 +13,8 @@ public class StudyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         appContainer = new AppContainer(this);
+        // Saneamiento de sesiones huérfanas tras apagado o cierre forzado del dispositivo
+        appContainer.getSesionEstudioService().sanearSesionesHuerfanas(null);
     }
 
     public AppContainer getAppContainer() {

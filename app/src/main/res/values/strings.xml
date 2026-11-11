@@ -101,4 +101,10 @@
     <string name="cd_editar_materia">Editar materia</string>
     <string name="cd_icono_racha">Ícono de constancia y racha</string>
     <string name="cd_agregar_materia">Registrar nueva materia</string>
+
+    <!-- Diálogo de Advertencia de Sesión Activa -->
+    <string name="enfoque_alerta_sesion_activa_titulo">Sesión de estudio en curso</string>
+    <string name="enfoque_alerta_sesion_activa_mensaje">Tienes una sesión de estudio activa. Si cambias de apartado, la sesión se detendrá para guardar tu tiempo acumulado. ¿Deseas detenerla y cambiar de pantalla o continuar estudiando?</string>
+    <string name="enfoque_alerta_detener_y_cambiar">Detener y cambiar</string>
+    <string name="enfoque_alerta_continuar_estudio">Continuar estudiando</string>
 </resources>

@@ -29,4 +29,6 @@ public interface SesionEstudioRepository {
     void obtenerCompletadasPorMateriaYSemana(int idMateria, long inicioSemana, long finSemana, Callback<List<SesionEstudio>> callback);
 
     void obtenerHistorialReciente(int limite, Callback<List<SesionEstudio>> callback);
+
+    void sanearSesionesHuerfanas(String motivo, Callback<Integer> callback);
 }

@@ -130,4 +130,37 @@ public class SesionEstudioService {
     public void obtenerHistorialReciente(int limite, ResultadoCallback<List<SesionEstudio>> callback) {
         sesionRepository.obtenerHistorialReciente(limite, callback::onSuccess);
     }
+
+    public void obtenerSesionActiva(ResultadoCallback<SesionEstudio> callback) {
+        sesionRepository.obtenerSesionActiva(callback::onSuccess);
+    }
+
+    public void finalizarOCancelarSesionActiva(int segundosTranscurridos, String notas, ResultadoCallback<Void> callback) {
+        sesionRepository.obtenerSesionActiva(sesionActiva -> {
+            if (sesionActiva == null) {
+                if (callback != null) callback.onSuccess(null);
+                return;
+            }
+
+            int minutos = segundosTranscurridos / 60;
+            if (minutos >= DURACION_MINIMA_REGISTRO_MINUTOS) {
+                finalizarSesion(sesionActiva, minutos, notas, callback);
+            } else {
+                sesionActiva.setEstado(EstadoSesion.CANCELADA);
+                sesionActiva.setFechaHoraFin(new Date());
+                sesionActiva.setNotasObservaciones("Sesión cancelada: tiempo inferior a 1 minuto.");
+                sesionRepository.actualizar(sesionActiva, res -> {
+                    if (callback != null) callback.onSuccess(null);
+                });
+            }
+        });
+    }
+
+    public void sanearSesionesHuerfanas(ResultadoCallback<Integer> callback) {
+        sesionRepository.sanearSesionesHuerfanas("Sesión cerrada tras reinicio o apagado del dispositivo", resultado -> {
+            if (callback != null) {
+                callback.onSuccess(resultado != null ? resultado : 0);
+            }
+        });
+    }
 }

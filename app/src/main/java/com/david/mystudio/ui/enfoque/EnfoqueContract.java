@@ -17,6 +17,8 @@ public interface EnfoqueContract {
         void actualizarEstadoSesion(boolean corriendo, boolean pausado);
         void mostrarResumenSesionCompletada(String mensaje);
         void limpiarNotas();
+        void seleccionarMateriaActiva(int idMateria);
+        void iniciarTemporizadorVisual(int segundosIniciales);
     }
 
     interface Presenter extends BasePresenter<View> {
@@ -25,5 +27,7 @@ public interface EnfoqueContract {
         void alternarPausa(boolean estaPausado);
         void finalizarSesion(String notas);
         void procesarTickSegundos(int segundosTranscurridos, boolean estaPausado);
+        void restaurarSesionActivaSiExiste();
+        void sincronizarConServicio(int segundosTranscurridos, boolean estaPausado);
     }
 }

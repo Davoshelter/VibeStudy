@@ -40,4 +40,7 @@ public interface SesionEstudioDao {
 
     @Query("SELECT * FROM sesiones_estudio WHERE estado = 'COMPLETADA' ORDER BY fecha_hora_inicio DESC LIMIT :limite")
     List<SesionEstudioEntity> obtenerHistorialReciente(int limite);
+
+    @Query("UPDATE sesiones_estudio SET estado = 'CANCELADA', notas_observaciones = :motivo, fecha_hora_fin = :fechaFin WHERE estado = 'EN_CURSO'")
+    int cancelarSesionesEnCurso(String motivo, long fechaFin);
 }

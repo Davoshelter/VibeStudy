@@ -1,18 +1,22 @@
 package com.david.mystudio;
 
 import android.os.Bundle;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import com.david.mystudio.domain.service.SesionEstudioService;
 import com.david.mystudio.ui.dashboard.DashboardFragment;
 import com.david.mystudio.ui.enfoque.EnfoqueFragment;
+import com.david.mystudio.ui.enfoque.StudyTimerService;
 import com.david.mystudio.ui.materias.MateriasFragment;
 import com.david.mystudio.ui.metas.MetasFragment;
 import com.david.mystudio.ui.reportes.ReportesFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /**
  * Actividad principal Shell que aloja la navegación inferior y los 5 fragmentos clave.
@@ -20,6 +24,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView navInferior;
+    private int pestanaActualId = R.id.menu_inicio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,34 +47,120 @@ public class MainActivity extends AppCompatActivity {
         navInferior = findViewById(R.id.navInferiorPrincipal);
         navInferior.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            if (itemId == R.id.menu_inicio) {
-                cambiarFragmento(new DashboardFragment());
-                return true;
-            } else if (itemId == R.id.menu_materias) {
-                cambiarFragmento(new MateriasFragment());
-                return true;
-            } else if (itemId == R.id.menu_enfoque) {
-                cambiarFragmento(new EnfoqueFragment());
-                return true;
-            } else if (itemId == R.id.menu_metas) {
-                cambiarFragmento(new MetasFragment());
-                return true;
-            } else if (itemId == R.id.menu_reportes) {
-                cambiarFragmento(new ReportesFragment());
+            if (itemId == pestanaActualId) {
                 return true;
             }
-            return false;
+
+            if (StudyTimerService.isSesionEnCurso() && itemId != R.id.menu_enfoque) {
+                mostrarDialogoAdvertenciaSesion(itemId);
+                return false;
+            }
+
+            return cambiarFragmentoPorMenu(itemId);
         });
 
         if (savedInstanceState == null) {
-            cambiarFragmento(new DashboardFragment());
+            cambiarFragmentoPorMenu(R.id.menu_inicio);
         }
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (StudyTimerService.isSesionEnCurso()) {
+                    mostrarDialogoAdvertenciaAtras(this);
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
     }
 
     public void seleccionarPestana(int menuId) {
         if (navInferior != null) {
             navInferior.setSelectedItemId(menuId);
         }
+    }
+
+    private boolean cambiarFragmentoPorMenu(int itemId) {
+        pestanaActualId = itemId;
+        if (itemId == R.id.menu_inicio) {
+            cambiarFragmento(new DashboardFragment());
+            return true;
+        } else if (itemId == R.id.menu_materias) {
+            cambiarFragmento(new MateriasFragment());
+            return true;
+        } else if (itemId == R.id.menu_enfoque) {
+            cambiarFragmento(new EnfoqueFragment());
+            return true;
+        } else if (itemId == R.id.menu_metas) {
+            cambiarFragmento(new MetasFragment());
+            return true;
+        } else if (itemId == R.id.menu_reportes) {
+            cambiarFragmento(new ReportesFragment());
+            return true;
+        }
+        return false;
+    }
+
+    private void mostrarDialogoAdvertenciaSesion(int targetItemId) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.enfoque_alerta_sesion_activa_titulo)
+                .setMessage(R.string.enfoque_alerta_sesion_activa_mensaje)
+                .setPositiveButton(R.string.enfoque_alerta_detener_y_cambiar, (dialog, which) -> {
+                    detenerYFinalizarSesionActiva(() -> {
+                        cambiarFragmentoPorMenu(targetItemId);
+                        navInferior.setSelectedItemId(targetItemId);
+                    });
+                })
+                .setNegativeButton(R.string.enfoque_alerta_continuar_estudio, (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    private void mostrarDialogoAdvertenciaAtras(OnBackPressedCallback callback) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.enfoque_alerta_sesion_activa_titulo)
+                .setMessage(R.string.enfoque_alerta_sesion_activa_mensaje)
+                .setPositiveButton(R.string.enfoque_alerta_detener_y_cambiar, (dialog, which) -> {
+                    detenerYFinalizarSesionActiva(() -> {
+                        callback.setEnabled(false);
+                        getOnBackPressedDispatcher().onBackPressed();
+                    });
+                })
+                .setNegativeButton(R.string.enfoque_alerta_continuar_estudio, (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    private void detenerYFinalizarSesionActiva(Runnable onCompletado) {
+        int segundos = StudyTimerService.getUltimosSegundos();
+        StudyTimerService.detenerServicio(this);
+
+        StudyApplication app = (StudyApplication) getApplication();
+        app.getAppContainer().getSesionEstudioService().finalizarOCancelarSesionActiva(
+                segundos,
+                "Sesión finalizada al cambiar de apartado",
+                new SesionEstudioService.ResultadoCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void resultado) {
+                        if (onCompletado != null) {
+                            runOnUiThread(onCompletado);
+                        }
+                    }
+
+                    @Override
+                    public void onError(String mensajeError) {
+                        if (onCompletado != null) {
+                            runOnUiThread(onCompletado);
+                        }
+                    }
+                }
+        );
     }
 
     private void cambiarFragmento(Fragment fragmento) {

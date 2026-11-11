@@ -20,7 +20,34 @@ import com.david.mystudio.R;
 public class StudyTimerService extends Service {
 
     public static final String CANAL_NOTIFICACION_ID = "canal_estudio_zanshin";
+    public static final String ACTION_DETENER = "com.david.mystudio.ACTION_DETENER_TIMER";
     private static final int NOTIFICACION_ID = 1001;
+
+    private static boolean servicioCorriendo = false;
+    private static boolean servicioPausado = false;
+    private static int ultimosSegundos = 0;
+
+    public static boolean isSesionEnCurso() {
+        return servicioCorriendo;
+    }
+
+    public static boolean isSesionPausada() {
+        return servicioPausado;
+    }
+
+    public static int getUltimosSegundos() {
+        return ultimosSegundos;
+    }
+
+    public static void detenerServicio(android.content.Context context) {
+        servicioCorriendo = false;
+        servicioPausado = false;
+        if (context != null) {
+            Intent intent = new Intent(context, StudyTimerService.class);
+            intent.setAction(ACTION_DETENER);
+            context.startService(intent);
+        }
+    }
 
     public interface OnTimerTickListener {
         void onTick(int segundosTranscurridos, boolean estaPausado);
@@ -38,6 +65,7 @@ public class StudyTimerService extends Service {
         public void run() {
             if (estaCorriendo && !estaPausado) {
                 segundosTranscurridos++;
+                ultimosSegundos = segundosTranscurridos;
                 if (listener != null) {
                     listener.onTick(segundosTranscurridos, estaPausado);
                 }
@@ -60,7 +88,18 @@ public class StudyTimerService extends Service {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        servicioCorriendo = false;
+        servicioPausado = false;
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && ACTION_DETENER.equals(intent.getAction())) {
+            detener();
+            return START_NOT_STICKY;
+        }
         if (estaCorriendo) {
             try {
                 startForeground(NOTIFICACION_ID, construirNotificacion());
@@ -84,8 +123,11 @@ public class StudyTimerService extends Service {
 
     public void iniciar(int segundosIniciales) {
         this.segundosTranscurridos = segundosIniciales;
+        ultimosSegundos = segundosIniciales;
         this.estaCorriendo = true;
+        servicioCorriendo = true;
         this.estaPausado = false;
+        servicioPausado = false;
         try {
             startForeground(NOTIFICACION_ID, construirNotificacion());
         } catch (SecurityException ignored) {
@@ -96,6 +138,7 @@ public class StudyTimerService extends Service {
 
     public void pausar() {
         this.estaPausado = true;
+        servicioPausado = true;
         actualizarNotificacion();
         if (listener != null) {
             listener.onTick(segundosTranscurridos, estaPausado);
@@ -104,6 +147,7 @@ public class StudyTimerService extends Service {
 
     public void reanudar() {
         this.estaPausado = false;
+        servicioPausado = false;
         handler.removeCallbacks(timerRunnable);
         handler.post(timerRunnable);
         if (listener != null) {
@@ -113,7 +157,9 @@ public class StudyTimerService extends Service {
 
     public void detener() {
         this.estaCorriendo = false;
+        servicioCorriendo = false;
         this.estaPausado = false;
+        servicioPausado = false;
         handler.removeCallbacks(timerRunnable);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(STOP_FOREGROUND_REMOVE);

@@ -74,6 +74,7 @@ public class EnfoquePresenter implements EnfoqueContract.Presenter {
                 if (vista != null) {
                     vista.mostrarCargando(false);
                     vista.actualizarEstadoSesion(true, false);
+                    vista.iniciarTemporizadorVisual(0);
                 }
             }
 
@@ -90,7 +91,7 @@ public class EnfoquePresenter implements EnfoqueContract.Presenter {
     @Override
     public void alternarPausa(boolean estaPausado) {
         if (vista != null) {
-            vista.actualizarEstadoSesion(sesionActiva != null, !estaPausado);
+            vista.actualizarEstadoSesion(sesionActiva != null, estaPausado);
         }
     }
 
@@ -101,10 +102,10 @@ public class EnfoquePresenter implements EnfoqueContract.Presenter {
             return;
         }
 
-        int minutosEfectivos = Math.max(1, segundosActuales / 60);
-
         if (vista != null) vista.mostrarCargando(true);
-        sesionEstudioService.finalizarSesion(sesionActiva, minutosEfectivos, notas, new SesionEstudioService.ResultadoCallback<Void>() {
+
+        int minutos = segundosActuales / 60;
+        sesionEstudioService.finalizarOCancelarSesionActiva(segundosActuales, notas, new SesionEstudioService.ResultadoCallback<Void>() {
             @Override
             public void onSuccess(Void resultado) {
                 sesionActiva = null;
@@ -114,7 +115,11 @@ public class EnfoquePresenter implements EnfoqueContract.Presenter {
                     vista.actualizarEstadoSesion(false, false);
                     vista.actualizarTiempo("25:00");
                     vista.limpiarNotas();
-                    vista.mostrarResumenSesionCompletada("Sesión completada y guardada con éxito (" + minutosEfectivos + " min)");
+                    if (minutos >= 1) {
+                        vista.mostrarResumenSesionCompletada("Sesión completada y guardada con éxito (" + minutos + " min)");
+                    } else {
+                        vista.mostrarResumenSesionCompletada("Sesión cancelada: tiempo inferior a 1 minuto.");
+                    }
                 }
             }
 
@@ -147,6 +152,36 @@ public class EnfoquePresenter implements EnfoqueContract.Presenter {
 
         String tiempoFormateado = String.format("%02d:%02d", minutos, segs);
         vista.actualizarTiempo(tiempoFormateado);
-        vista.actualizarEstadoSesion(sesionActiva != null, estaPausado);
+        boolean haySesion = (sesionActiva != null) || StudyTimerService.isSesionEnCurso();
+        vista.actualizarEstadoSesion(haySesion, estaPausado);
+    }
+
+    @Override
+    public void restaurarSesionActivaSiExiste() {
+        sesionEstudioService.obtenerSesionActiva(new SesionEstudioService.ResultadoCallback<SesionEstudio>() {
+            @Override
+            public void onSuccess(SesionEstudio sesion) {
+                if (sesion != null) {
+                    sesionActiva = sesion;
+                    tecnicaActual = sesion.getTecnica() != null ? sesion.getTecnica() : TipoTecnica.POMODORO;
+                    if (vista != null) {
+                        vista.seleccionarMateriaActiva(sesion.getIdMateria());
+                        boolean estaPausado = StudyTimerService.isSesionPausada();
+                        vista.actualizarEstadoSesion(true, estaPausado);
+                    }
+                }
+            }
+
+            @Override
+            public void onError(String mensajeError) {
+                // Sin sesión activa previa
+            }
+        });
+    }
+
+    @Override
+    public void sincronizarConServicio(int segundosTranscurridos, boolean estaPausado) {
+        this.segundosActuales = segundosTranscurridos;
+        procesarTickSegundos(segundosTranscurridos, estaPausado);
     }
 }
