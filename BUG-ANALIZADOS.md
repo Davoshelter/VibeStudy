@@ -362,3 +362,16 @@ getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPress
 | **BUG-AUD-07** | Medio | **Corregido** | `MainActivity.java` | Se registró `OnBackPressedCallback` en `onCreate()` evaluando `StudyTimerService.isSesionEnCurso()` para advertir antes de salir. | Verificación estática + `compileDebugJavaWithJavac` |
 | **BUG-AUD-08** | Medio | **Corregido** | `EnfoqueFragment.java` | Se suprimió la llamada redundante a `restaurarSesionActivaSiExiste()` dentro de `mostrarMaterias()`. | Verificación estática + `compileDebugJavaWithJavac` + `assembleDebug` |
 
+---
+
+## 6. Registro de Defectos de Experiencia de Usuario y Navegación (Pruebas de Campo)
+
+| ID | Defecto Identificado en Prueba Real | Severidad | Estado | Archivos Modificados | Solución Aplicada |
+|---|---|:---:|:---:|---|---|
+| **BUG-FIELD-01** | Bucle de advertencia y reinicio de temporizador al intentar cambiar de sección | **Alto** | **Corregido** | `MainActivity.java`, `EnfoqueFragment.java` | Se sincronizó la detención explícita con `StudyTimerService.detenerServicio(context)` al presionar "Finalizar", y se implementó bandera de navegación programática para evitar que `setSelectedItemId` re-dispare la validación en bucle. |
+| **BUG-FIELD-02** | Botones de navegación inferior tapados por gestos del sistema y falta de deslizamiento lateral | **Alto** | **Corregido** | `activity_main.xml`, `MainActivity.java` | Se aplicó `insets.bottom` como padding a `BottomNavigationView` para que no colisione con los gestos de Android. Se migró a `ViewPager2` con `FragmentStateAdapter` permitiendo deslizar con el dedo (swipe) entre ventanas fluidamente. |
+| **BUG-FIELD-03** | La notificación del temporizador no aparecía y el cronómetro se apagaba al bloquear el teléfono | **Alto** | **Corregido** | `StudyTimerService.java`, `EnfoqueFragment.java` | Se implementó `ServiceCompat.startForeground` con tipo `specialUse` para Android 14/15, canal de notificación público con `FOREGROUND_SERVICE_IMMEDIATE` y `PendingIntent`, evitando que el sistema operativo lo suspenda al apagar la pantalla. |
+| **BUG-FIELD-04** | Colores quemados en `Color.WHITE` y contraste deficiente en modo oscuro en Metas | **Medio** | **Corregido** | `MetasAdapter.java`, `MetasFragment.java` | Se sustituyó `Color.WHITE` por `R.color.color_surface` dinámico en chips de progreso, y se dinamizaron los tintes del badge global según el estado de cumplimiento (≥100%, rezagado <30%, en progreso). |
+| **BUG-FIELD-05** | Desconexión en acumulación de sesiones y truncado a 0.0 hrs en Metas | **Alto** | **Corregido** | `MetaSemanalService.java`, `MetasPresenter.java`, `DashboardPresenter.java`, `MetasAdapter.java` | Se implementó sincronización automática bidireccional de metas con sesiones completadas en Room de la semana, se eliminó la pérdida de sesiones creadas previo a la meta, y se garantizó avance visible (mínimo 0.1 hrs / 2% en barra) para sesiones cortas. |
+
+

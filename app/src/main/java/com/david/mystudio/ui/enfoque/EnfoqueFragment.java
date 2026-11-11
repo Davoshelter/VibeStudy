@@ -16,7 +16,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import com.david.mystudio.MainActivity;
 import com.david.mystudio.R;
 import com.david.mystudio.StudyApplication;
 import com.david.mystudio.domain.model.Materia;
@@ -114,7 +116,13 @@ public class EnfoqueFragment extends Fragment implements EnfoqueContract.View, S
             if (timerService != null) {
                 timerService.detener();
             }
+            if (getContext() != null) {
+                StudyTimerService.detenerServicio(getContext());
+            }
             presenter.finalizarSesion(notas);
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).actualizarBloqueoSwipeSegunSesion();
+            }
         });
 
         enlazarServicio();
@@ -208,6 +216,9 @@ public class EnfoqueFragment extends Fragment implements EnfoqueContract.View, S
                 btnPausarReanudar.setIconResource(R.drawable.ic_pause);
             }
         }
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).actualizarBloqueoSwipeSegunSesion();
+        }
     }
 
     @Override
@@ -236,6 +247,11 @@ public class EnfoqueFragment extends Fragment implements EnfoqueContract.View, S
 
     @Override
     public void iniciarTemporizadorVisual(int segundosIniciales) {
+        Context context = getContext();
+        if (context != null) {
+            Intent intent = new Intent(context, StudyTimerService.class);
+            ContextCompat.startForegroundService(context, intent);
+        }
         if (timerService != null) {
             timerService.iniciar(segundosIniciales);
         }

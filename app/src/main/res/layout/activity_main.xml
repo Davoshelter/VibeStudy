@@ -24,9 +24,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Contenedor Principal de Fragmentos -->
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fcvContenedorPrincipal"
+    <!-- ViewPager2 para soporte táctil y deslizamiento fluido (Swipe) -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vpContenedorPrincipal"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/navInferiorPrincipal"

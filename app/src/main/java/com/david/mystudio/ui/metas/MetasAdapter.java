@@ -57,27 +57,33 @@ public class MetasAdapter extends RecyclerView.Adapter<MetasAdapter.MetaViewHold
 
         int colorEntero = ColorUtils.parseColorConFallback(colorHex, Color.BLUE);
         holder.viewSwatch.setBackgroundTintList(ColorStateList.valueOf(colorEntero));
+        holder.txtNombre.setTextColor(ContextCompat.getColor(context, R.color.color_on_surface));
 
-        int porcentaje = (int) meta.calcularPorcentajeAvance();
-        holder.prgItem.setProgress(porcentaje);
+        int porcentaje = (int) Math.round(meta.calcularPorcentajeAvance());
+        if (porcentaje == 0 && meta.getHorasCumplidas() > 0.0) {
+            porcentaje = 1;
+        }
+        holder.prgItem.setProgress(Math.max(porcentaje, meta.getHorasCumplidas() > 0.0 ? 3 : 0));
+
+        int colorFondoChip = ContextCompat.getColor(context, R.color.color_surface);
 
         if (meta.estaCumplida()) {
-            // Variante Cumplida 100% (Verde)
+            // Variante Cumplida 100% (Verde adaptativo M3)
             holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.color_success_container));
             holder.txtChipProgreso.setText(R.string.metas_chip_cumplida);
             holder.txtChipProgreso.setTextColor(ContextCompat.getColor(context, R.color.color_success));
-            holder.txtChipProgreso.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+            holder.txtChipProgreso.setBackgroundTintList(ColorStateList.valueOf(colorFondoChip));
             holder.prgItem.setIndicatorColor(ContextCompat.getColor(context, R.color.color_success));
             holder.txtPorcentaje.setText(meta.getHorasCumplidas() + " / " + meta.getHorasObjetivo() + " hrs completadas");
             holder.txtPorcentaje.setTextColor(ContextCompat.getColor(context, R.color.color_success));
             holder.txtDetalleFaltante.setText(R.string.metas_felicitacion);
             holder.txtDetalleFaltante.setTextColor(ContextCompat.getColor(context, R.color.color_success));
         } else if (porcentaje < 30) {
-            // Variante Rezagada (Alerta / Ámbar-Rojo)
+            // Variante Rezagada (Alerta adaptativa M3)
             holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.color_error_container));
             holder.txtChipProgreso.setText(meta.getHorasCumplidas() + " / " + meta.getHorasObjetivo() + " hrs");
             holder.txtChipProgreso.setTextColor(ContextCompat.getColor(context, R.color.color_error));
-            holder.txtChipProgreso.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+            holder.txtChipProgreso.setBackgroundTintList(ColorStateList.valueOf(colorFondoChip));
             holder.prgItem.setIndicatorColor(ContextCompat.getColor(context, R.color.color_error));
             holder.txtPorcentaje.setText(porcentaje + "% logrado");
             holder.txtPorcentaje.setTextColor(ContextCompat.getColor(context, R.color.color_error));

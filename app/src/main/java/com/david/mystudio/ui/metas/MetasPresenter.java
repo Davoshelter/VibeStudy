@@ -50,53 +50,57 @@ public class MetasPresenter implements MetasContract.Presenter {
         String textoSemana = "Semana " + numeroSemanaActual + " (" + anioActual + ")";
         vista.mostrarSemana(textoSemana);
 
-        materiaService.obtenerMateriasActivas(new MateriaService.ResultadoCallback<List<Materia>>() {
-            @Override
-            public void onSuccess(List<Materia> materias) {
-                Map<Integer, Materia> mapa = new HashMap<>();
-                if (materias != null) {
-                    for (Materia m : materias) mapa.put(m.getId(), m);
-                }
+        metaService.sincronizarMetasConSesionesReales(numeroSemanaActual, anioActual, () -> {
+            materiaService.obtenerMateriasActivas(new MateriaService.ResultadoCallback<List<Materia>>() {
+                @Override
+                public void onSuccess(List<Materia> materias) {
+                    Map<Integer, Materia> mapa = new HashMap<>();
+                    if (materias != null) {
+                        for (Materia m : materias) mapa.put(m.getId(), m);
+                    }
 
-                metaService.obtenerMetasSemana(numeroSemanaActual, anioActual, new MetaSemanalService.ResultadoCallback<List<MetaSemanal>>() {
-                    @Override
-                    public void onSuccess(List<MetaSemanal> metas) {
-                        double totalObj = 0.0;
-                        double totalCumpl = 0.0;
-                        if (metas != null) {
-                            for (MetaSemanal m : metas) {
-                                totalObj += m.getHorasObjetivo();
-                                totalCumpl += m.getHorasCumplidas();
+                    metaService.obtenerMetasSemana(numeroSemanaActual, anioActual, new MetaSemanalService.ResultadoCallback<List<MetaSemanal>>() {
+                        @Override
+                        public void onSuccess(List<MetaSemanal> metas) {
+                            double totalObj = 0.0;
+                            double totalCumpl = 0.0;
+                            if (metas != null) {
+                                for (MetaSemanal m : metas) {
+                                    totalObj += m.getHorasObjetivo();
+                                    totalCumpl += m.getHorasCumplidas();
+                                }
+                            }
+                            totalCumpl = Math.round(totalCumpl * 10.0) / 10.0;
+                            totalObj = Math.round(totalObj * 10.0) / 10.0;
+                            int porcentaje = totalObj > 0.0
+                                    ? (int) Math.min(100.0, Math.round((totalCumpl / totalObj) * 100.0))
+                                    : 0;
+
+                            if (vista != null) {
+                                vista.mostrarCargando(false);
+                                vista.mostrarCompromisoTotal(totalCumpl, totalObj, porcentaje);
+                                vista.mostrarMetas(metas, mapa);
                             }
                         }
-                        int porcentaje = totalObj > 0.0
-                                ? (int) Math.min(100.0, Math.round((totalCumpl / totalObj) * 100.0))
-                                : 0;
 
-                        if (vista != null) {
-                            vista.mostrarCargando(false);
-                            vista.mostrarCompromisoTotal(totalCumpl, totalObj, porcentaje);
-                            vista.mostrarMetas(metas, mapa);
+                        @Override
+                        public void onError(String mensajeError) {
+                            if (vista != null) {
+                                vista.mostrarCargando(false);
+                                vista.mostrarError(mensajeError);
+                            }
                         }
-                    }
-
-                    @Override
-                    public void onError(String mensajeError) {
-                        if (vista != null) {
-                            vista.mostrarCargando(false);
-                            vista.mostrarError(mensajeError);
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void onError(String mensajeError) {
-                if (vista != null) {
-                    vista.mostrarCargando(false);
-                    vista.mostrarError(mensajeError);
+                    });
                 }
-            }
+
+                @Override
+                public void onError(String mensajeError) {
+                    if (vista != null) {
+                        vista.mostrarCargando(false);
+                        vista.mostrarError(mensajeError);
+                    }
+                }
+            });
         });
     }
 

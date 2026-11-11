@@ -3,14 +3,18 @@ package com.david.mystudio.ui.enfoque;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.ServiceCompat;
+import com.david.mystudio.MainActivity;
 import com.david.mystudio.R;
 
 /**
@@ -101,10 +105,7 @@ public class StudyTimerService extends Service {
             return START_NOT_STICKY;
         }
         if (estaCorriendo) {
-            try {
-                startForeground(NOTIFICACION_ID, construirNotificacion());
-            } catch (SecurityException ignored) {
-            }
+            lanzarForegroundSeguro();
         }
         return START_NOT_STICKY;
     }
@@ -128,12 +129,22 @@ public class StudyTimerService extends Service {
         servicioCorriendo = true;
         this.estaPausado = false;
         servicioPausado = false;
-        try {
-            startForeground(NOTIFICACION_ID, construirNotificacion());
-        } catch (SecurityException ignored) {
-        }
+        lanzarForegroundSeguro();
         handler.removeCallbacks(timerRunnable);
         handler.post(timerRunnable);
+    }
+
+    private void lanzarForegroundSeguro() {
+        try {
+            Notification notif = construirNotificacion();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ServiceCompat.startForeground(this, NOTIFICACION_ID, notif, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+            } else {
+                ServiceCompat.startForeground(this, NOTIFICACION_ID, notif, 0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void pausar() {
@@ -189,6 +200,8 @@ public class StudyTimerService extends Service {
                     NotificationManager.IMPORTANCE_LOW
             );
             channel.setDescription("Mantiene activo el conteo del temporizador en segundo plano");
+            channel.setShowBadge(true);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
             NotificationManager manager = getSystemService(NotificationManager.class);
             if (manager != null) {
                 manager.createNotificationChannel(channel);
@@ -202,12 +215,25 @@ public class StudyTimerService extends Service {
         String tiempoStr = String.format("%02d:%02d", minutos, segs);
         String estadoStr = estaPausado ? "Sesión pausada" : "Enfoque Zanshin en curso";
 
+        Intent intentApp = new Intent(this, MainActivity.class);
+        intentApp.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                intentApp,
+                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
+
         return new NotificationCompat.Builder(this, CANAL_NOTIFICACION_ID)
                 .setContentTitle(tiempoStr + " • StudyVibe")
                 .setContentText(estadoStr)
                 .setSmallIcon(R.drawable.ic_timer)
+                .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                 .build();
     }
 
@@ -217,7 +243,7 @@ public class StudyTimerService extends Service {
         if (manager != null) {
             try {
                 manager.notify(NOTIFICACION_ID, construirNotificacion());
-            } catch (SecurityException ignored) {
+            } catch (Exception ignored) {
             }
         }
     }

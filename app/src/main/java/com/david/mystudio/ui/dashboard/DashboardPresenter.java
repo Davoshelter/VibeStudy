@@ -61,30 +61,34 @@ public class DashboardPresenter implements DashboardContract.Presenter {
         int semanaActual = DateTimeUtils.obtenerNumeroSemana(hoy);
         int anioActual = DateTimeUtils.obtenerAnio(hoy);
 
-        metaSemanalService.obtenerMetasSemana(semanaActual, anioActual, new MetaSemanalService.ResultadoCallback<List<MetaSemanal>>() {
-            @Override
-            public void onSuccess(List<MetaSemanal> metas) {
-                double totalObjetivo = 0.0;
-                double totalCumplidas = 0.0;
-                if (metas != null) {
-                    for (MetaSemanal m : metas) {
-                        totalObjetivo += m.getHorasObjetivo();
-                        totalCumplidas += m.getHorasCumplidas();
+        metaSemanalService.sincronizarMetasConSesionesReales(semanaActual, anioActual, () -> {
+            metaSemanalService.obtenerMetasSemana(semanaActual, anioActual, new MetaSemanalService.ResultadoCallback<List<MetaSemanal>>() {
+                @Override
+                public void onSuccess(List<MetaSemanal> metas) {
+                    double totalObjetivo = 0.0;
+                    double totalCumplidas = 0.0;
+                    if (metas != null) {
+                        for (MetaSemanal m : metas) {
+                            totalObjetivo += m.getHorasObjetivo();
+                            totalCumplidas += m.getHorasCumplidas();
+                        }
+                    }
+                    totalCumplidas = Math.round(totalCumplidas * 10.0) / 10.0;
+                    totalObjetivo = Math.round(totalObjetivo * 10.0) / 10.0;
+                    int porcentaje = totalObjetivo > 0.0
+                            ? (int) Math.min(100.0, Math.round((totalCumplidas / totalObjetivo) * 100.0))
+                            : 0;
+
+                    if (vista != null) {
+                        vista.mostrarMetaGlobal(totalCumplidas, totalObjetivo, porcentaje);
                     }
                 }
-                int porcentaje = totalObjetivo > 0.0
-                        ? (int) Math.min(100.0, Math.round((totalCumplidas / totalObjetivo) * 100.0))
-                        : 0;
 
-                if (vista != null) {
-                    vista.mostrarMetaGlobal(totalCumplidas, totalObjetivo, porcentaje);
+                @Override
+                public void onError(String mensajeError) {
+                    if (vista != null) vista.mostrarError(mensajeError);
                 }
-            }
-
-            @Override
-            public void onError(String mensajeError) {
-                if (vista != null) vista.mostrarError(mensajeError);
-            }
+            });
         });
 
         // 3. Cargar Agenda de Hoy y Materias para nombres/colores
