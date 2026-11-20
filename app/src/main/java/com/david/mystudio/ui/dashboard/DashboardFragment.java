@@ -1,5 +1,7 @@
 package com.david.mystudio.ui.dashboard;
 
+import static com.david.mystudio.util.DateTimeUtils.formatearMinutos;
+
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
@@ -108,14 +110,13 @@ public class DashboardFragment extends Fragment implements DashboardContract.Vie
     }
 
     @Override
-    public void mostrarMetaGlobal(double horasCumplidas, double horasObjetivo, int porcentajeAvance) {
+    public void mostrarMetaGlobal(int minutosCumplidos, int minutosObjetivo, int porcentajeAvance) {
         if (txtHorasMetaGlobal != null) {
-            String textoHoras = horasCumplidas + " / " + horasObjetivo + " hrs";
+            String textoHoras = formatearMinutos(minutosCumplidos) + " / " + formatearMinutos(minutosObjetivo);
             txtHorasMetaGlobal.setText(textoHoras);
             prgMetaGlobal.setProgress(porcentajeAvance);
             txtPorcentajeMetaGlobal.setText(porcentajeAvance + "% completado");
-            double faltan = Math.max(0.0, Math.round((horasObjetivo - horasCumplidas) * 10.0) / 10.0);
-            txtHorasRestantesMetaGlobal.setText("Faltan " + faltan + " hrs para el domingo");
+            txtHorasRestantesMetaGlobal.setText("Tiempo restante: " + formatearMinutos(minutosObjetivo - minutosCumplidos));
         }
     }
 

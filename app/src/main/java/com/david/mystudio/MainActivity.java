@@ -1,8 +1,11 @@
 package com.david.mystudio;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -12,9 +15,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
-import com.david.mystudio.domain.service.SesionEstudioService;
 import com.david.mystudio.ui.dashboard.DashboardFragment;
 import com.david.mystudio.ui.enfoque.EnfoqueFragment;
+import com.david.mystudio.ui.enfoque.SesionEnfoque;
 import com.david.mystudio.ui.enfoque.StudyTimerService;
 import com.david.mystudio.ui.materias.MateriasFragment;
 import com.david.mystudio.ui.metas.MetasFragment;
@@ -30,8 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView navInferior;
     private ViewPager2 viewPager;
-    private int pestanaActualId = R.id.menu_inicio;
-    private boolean navegandoProgramaticamente = false;
+    private SesionEnfoque enfoque;
+    private AlertDialog dialogoSalida;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         navInferior = findViewById(R.id.navInferiorPrincipal);
         viewPager = findViewById(R.id.vpContenedorPrincipal);
+        enfoque = ((StudyApplication) getApplication()).getAppContainer().getSesionEnfoque();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -59,44 +63,38 @@ public class MainActivity extends AppCompatActivity {
 
         viewPager.setAdapter(new MainPagerAdapter(this));
         viewPager.setOffscreenPageLimit(1);
+        viewPager.setUserInputEnabled(navegacionLibre(enfoque.getEstado()));
+        enfoque.observarEstado().observe(this, estado -> {
+            viewPager.setUserInputEnabled(navegacionLibre(estado));
+            if ((estado == SesionEnfoque.Estado.ACTIVA || estado == SesionEnfoque.Estado.PAUSADA)
+                    && viewPager.getCurrentItem() != obtenerPosicionPorMenuId(R.id.menu_enfoque)) {
+                abrirPestana(R.id.menu_enfoque);
+            }
+        });
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                int targetMenuId = obtenerMenuIdPorPosicion(position);
-                pestanaActualId = targetMenuId;
-                if (!navegandoProgramaticamente && navInferior != null) {
-                    navInferior.getMenu().getItem(position).setChecked(true);
-                }
+                navInferior.getMenu().findItem(obtenerMenuIdPorPosicion(position)).setChecked(true);
             }
         });
 
         navInferior.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            if (itemId == pestanaActualId) {
-                return true;
-            }
-
-            if (StudyTimerService.isSesionEnCurso() && itemId != R.id.menu_enfoque) {
-                mostrarDialogoAdvertenciaSesion(itemId);
+            if (obtenerPosicionPorMenuId(itemId) == viewPager.getCurrentItem()) return true;
+            if (itemId != R.id.menu_enfoque
+                    && interceptarSalidaDeEnfoque(() -> abrirPestana(itemId), R.string.enfoque_alerta_detener_y_cambiar)) {
                 return false;
             }
-
-            pestanaActualId = itemId;
-            int posicion = obtenerPosicionPorMenuId(itemId);
-            navegandoProgramaticamente = true;
-            viewPager.setCurrentItem(posicion, true);
-            navegandoProgramaticamente = false;
+            abrirPestana(itemId);
             return true;
         });
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (StudyTimerService.isSesionEnCurso()) {
-                    mostrarDialogoAdvertenciaAtras(this);
-                } else if (viewPager.getCurrentItem() != 0) {
+                if (interceptarSalidaDeEnfoque(MainActivity.this::finish, R.string.enfoque_alerta_detener_y_salir)) return;
+                if (viewPager.getCurrentItem() != 0) {
                     seleccionarPestana(R.id.menu_inicio);
                 } else {
                     setEnabled(false);
@@ -104,20 +102,39 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        if (StudyTimerService.ACTION_ABRIR_ENFOQUE.equals(getIntent().getAction())) {
+            abrirPestana(R.id.menu_enfoque);
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        actualizarBloqueoSwipeSegunSesion();
+        if (enfoque.getEstado() == SesionEnfoque.Estado.RECUPERABLE) {
+            abrirPestana(R.id.menu_enfoque);
+        }
+        enfoque.recuperar(mensaje -> {
+            if (!isDestroyed()) Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show();
+        });
     }
 
-    public void actualizarBloqueoSwipeSegunSesion() {
-        if (viewPager != null) {
-            // Si hay sesión activa en Enfoque, deshabilitamos el swipe accidental;
-            // de lo contrario permitimos navegación táctil por deslizamiento fluido.
-            viewPager.setUserInputEnabled(!StudyTimerService.isSesionEnCurso());
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (StudyTimerService.ACTION_ABRIR_ENFOQUE.equals(intent.getAction())) {
+            abrirPestana(R.id.menu_enfoque);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (dialogoSalida != null) dialogoSalida.dismiss();
+        super.onDestroy();
+    }
+
+    private void abrirPestana(int menuId) {
+        viewPager.setCurrentItem(obtenerPosicionPorMenuId(menuId), true);
+        navInferior.getMenu().findItem(menuId).setChecked(true);
     }
 
     public void seleccionarPestana(int menuId) {
@@ -146,70 +163,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void mostrarDialogoAdvertenciaSesion(int targetItemId) {
-        new MaterialAlertDialogBuilder(this)
+    private boolean interceptarSalidaDeEnfoque(Runnable alSalir, int etiquetaConfirmacion) {
+        SesionEnfoque.Estado estado = enfoque.getEstado();
+        if (navegacionLibre(estado)) return false;
+        if (dialogoSalida != null || estado == SesionEnfoque.Estado.INICIANDO
+                || estado == SesionEnfoque.Estado.FINALIZANDO) return true;
+
+        dialogoSalida = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.enfoque_alerta_sesion_activa_titulo)
                 .setMessage(R.string.enfoque_alerta_sesion_activa_mensaje)
-                .setPositiveButton(R.string.enfoque_alerta_detener_y_cambiar, (dialog, which) -> {
-                    detenerYFinalizarSesionActiva(() -> {
-                        int pos = obtenerPosicionPorMenuId(targetItemId);
-                        pestanaActualId = targetItemId;
-                        navegandoProgramaticamente = true;
-                        viewPager.setCurrentItem(pos, true);
-                        navInferior.setSelectedItemId(targetItemId);
-                        navegandoProgramaticamente = false;
-                        actualizarBloqueoSwipeSegunSesion();
-                    });
-                })
-                .setNegativeButton(R.string.enfoque_alerta_continuar_estudio, (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .setCancelable(false)
-                .show();
+                .setPositiveButton(etiquetaConfirmacion, (dialog, which) -> enfoque.finalizar(
+                        minutos -> {
+                            if (!isDestroyed() && !isFinishing()) alSalir.run();
+                        },
+                        mensaje -> {
+                            if (!isDestroyed()) Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show();
+                        }))
+                .setNegativeButton(R.string.enfoque_alerta_continuar_estudio, null)
+                .create();
+        dialogoSalida.setOnDismissListener(dialog -> dialogoSalida = null);
+        dialogoSalida.show();
+        return true;
     }
 
-    private void mostrarDialogoAdvertenciaAtras(OnBackPressedCallback callback) {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.enfoque_alerta_sesion_activa_titulo)
-                .setMessage(R.string.enfoque_alerta_sesion_activa_mensaje)
-                .setPositiveButton(R.string.enfoque_alerta_detener_y_cambiar, (dialog, which) -> {
-                    detenerYFinalizarSesionActiva(() -> {
-                        actualizarBloqueoSwipeSegunSesion();
-                        callback.setEnabled(false);
-                        getOnBackPressedDispatcher().onBackPressed();
-                    });
-                })
-                .setNegativeButton(R.string.enfoque_alerta_continuar_estudio, (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .setCancelable(false)
-                .show();
-    }
-
-    private void detenerYFinalizarSesionActiva(Runnable onCompletado) {
-        int segundos = StudyTimerService.getUltimosSegundos();
-        StudyTimerService.detenerServicio(this);
-
-        StudyApplication app = (StudyApplication) getApplication();
-        app.getAppContainer().getSesionEstudioService().finalizarOCancelarSesionActiva(
-                segundos,
-                "Sesión finalizada al cambiar de apartado",
-                new SesionEstudioService.ResultadoCallback<Void>() {
-                    @Override
-                    public void onSuccess(Void resultado) {
-                        if (onCompletado != null) {
-                            runOnUiThread(onCompletado);
-                        }
-                    }
-
-                    @Override
-                    public void onError(String mensajeError) {
-                        if (onCompletado != null) {
-                            runOnUiThread(onCompletado);
-                        }
-                    }
-                }
-        );
+    private boolean navegacionLibre(SesionEnfoque.Estado estado) {
+        return estado == SesionEnfoque.Estado.INACTIVA || estado == SesionEnfoque.Estado.RECUPERABLE;
     }
 
     private static class MainPagerAdapter extends FragmentStateAdapter {

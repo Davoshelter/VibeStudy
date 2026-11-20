@@ -1,5 +1,7 @@
 package com.david.mystudio.ui.metas;
 
+import static com.david.mystudio.util.DateTimeUtils.formatearMinutos;
+
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -103,12 +105,12 @@ public class MetasFragment extends Fragment implements MetasContract.View {
     }
 
     @Override
-    public void mostrarCompromisoTotal(double cumplidas, double objetivo, int porcentaje) {
+    public void mostrarCompromisoTotal(int minutosCumplidos, int minutosObjetivo, int porcentaje) {
         if (txtHorasCompromiso != null && getContext() != null) {
-            txtHorasCompromiso.setText(cumplidas + " / " + objetivo + " hrs");
+            txtHorasCompromiso.setText(formatearMinutos(minutosCumplidos) + " / " + formatearMinutos(minutosObjetivo));
             prgCompromiso.setProgress(porcentaje);
             txtBadgeCompromiso.setText(porcentaje + "% Completado");
-            double faltan = Math.max(0.0, Math.round((objetivo - cumplidas) * 10.0) / 10.0);
+            String faltan = formatearMinutos(minutosObjetivo - minutosCumplidos);
             if (porcentaje >= 100) {
                 txtBadgeCompromiso.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.color_success_container)));
                 txtBadgeCompromiso.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_success));
@@ -116,11 +118,11 @@ public class MetasFragment extends Fragment implements MetasContract.View {
             } else if (porcentaje < 30) {
                 txtBadgeCompromiso.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.color_error_container)));
                 txtBadgeCompromiso.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_error));
-                txtRitmoOptimo.setText("⚠️ Ritmo bajo: falta completar " + faltan + " horas antes del domingo.");
+                txtRitmoOptimo.setText("⚠️ Ritmo bajo. Tiempo restante: " + faltan);
             } else {
                 txtBadgeCompromiso.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.color_surface_variant)));
                 txtBadgeCompromiso.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_primary));
-                txtRitmoOptimo.setText("Falta completar " + faltan + " horas antes del domingo.");
+                txtRitmoOptimo.setText("Tiempo restante: " + faltan);
             }
         }
     }

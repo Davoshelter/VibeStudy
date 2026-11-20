@@ -6,28 +6,26 @@ import com.david.mystudio.ui.base.BasePresenter;
 import com.david.mystudio.ui.base.BaseView;
 import java.util.List;
 
-/**
- * Contrato MVP para la Pantalla 3: Enfoque Zanshin (Temporizador).
- */
+/** Contrato MVP de la pantalla Enfoque. */
 public interface EnfoqueContract {
 
     interface View extends BaseView {
         void mostrarMaterias(List<Materia> materias);
         void actualizarTiempo(String tiempoFormateado);
-        void actualizarEstadoSesion(boolean corriendo, boolean pausado);
-        void mostrarResumenSesionCompletada(String mensaje);
-        void limpiarNotas();
+        void actualizarEstadoSesion(SesionEnfoque.Estado estado, boolean puedePausar);
+        void mostrarResumenSesionCompletada(int minutos);
+        void mostrarNotas(String notas);
         void seleccionarMateriaActiva(int idMateria);
-        void iniciarTemporizadorVisual(int segundosIniciales);
     }
 
     interface Presenter extends BasePresenter<View> {
         void cargarMaterias();
         void iniciarSesion(int idMateria, TipoTecnica tecnica);
-        void alternarPausa(boolean estaPausado);
-        void finalizarSesion(String notas);
-        void procesarTickSegundos(int segundosTranscurridos, boolean estaPausado);
-        void restaurarSesionActivaSiExiste();
-        void sincronizarConServicio(int segundosTranscurridos, boolean estaPausado);
+        void recuperarSesion();
+        void alternarPausa();
+        void finalizarSesion();
+        void actualizarBorrador(String notas);
+        void mostrarEstado();
+        void mostrarTiempo();
     }
 }

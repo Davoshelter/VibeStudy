@@ -2,6 +2,7 @@ package com.david.mystudio.domain.repository;
 
 import com.david.mystudio.domain.model.SesionEstudio;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Contrato de repositorio para operaciones sobre sesiones de estudio.
@@ -12,15 +13,15 @@ public interface SesionEstudioRepository {
         void onResult(T resultado);
     }
 
-    void guardar(SesionEstudio sesion, Callback<Long> callback);
+    void guardar(SesionEstudio sesion, Callback<Long> callback, Consumer<RuntimeException> onError);
 
-    void actualizar(SesionEstudio sesion, Callback<Void> callback);
+    void guardarSiNoHaySesionActiva(SesionEstudio sesion, Callback<Long> callback, Consumer<RuntimeException> onError);
 
-    void buscarPorId(int id, Callback<SesionEstudio> callback);
+    void cerrar(SesionEstudio cierre, Callback<Integer> callback, Consumer<RuntimeException> onError);
+
+    void buscarPorId(int id, Callback<SesionEstudio> callback, Consumer<RuntimeException> onError);
 
     void obtenerCompletadasPorMateria(int idMateria, Callback<List<SesionEstudio>> callback);
-
-    void obtenerSesionActiva(Callback<SesionEstudio> callback);
 
     void obtenerSesionesProgramadasDelDia(long inicioDia, long finDia, Callback<List<SesionEstudio>> callback);
 
@@ -30,5 +31,6 @@ public interface SesionEstudioRepository {
 
     void obtenerHistorialReciente(int limite, Callback<List<SesionEstudio>> callback);
 
-    void sanearSesionesHuerfanas(String motivo, Callback<Integer> callback);
+    void sanearSesionesHuerfanas(int idConCronometro, String motivo, Callback<Integer> callback,
+                                 Consumer<RuntimeException> onError);
 }

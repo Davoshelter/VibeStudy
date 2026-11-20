@@ -31,4 +31,25 @@ public class MetaSemanalTest {
         MetaSemanal meta = new MetaSemanal(1, 10, 45, 2026, 6.0, 4.5, EstadoMeta.EN_PROGRESO);
         assertFalse(meta.estaCumplida());
     }
+
+    @Test
+    public void completaUnaHoraSoloAlGuardarSesentaMinutos() {
+        MetaSemanal meta = new MetaSemanal(1, 10, 45, 2026, 1, 0, EstadoMeta.EN_PROGRESO);
+        meta.actualizarAvanceEnMinutos(58);
+        assertEquals(58, meta.getMinutosCumplidos());
+        assertEquals(96, MetaSemanal.porcentajeEntero(meta.getMinutosCumplidos(), meta.getMinutosObjetivo()));
+        assertEquals(EstadoMeta.EN_PROGRESO, meta.getEstado());
+
+        meta.actualizarAvanceEnMinutos(60);
+        assertEquals(EstadoMeta.CUMPLIDA, meta.getEstado());
+    }
+
+    @Test
+    public void conservaSesionesCortasYRedondeaElObjetivoAlMinutoAlcanzable() {
+        MetaSemanal meta = new MetaSemanal(1, 10, 45, 2026, 1.005, 0, EstadoMeta.EN_PROGRESO);
+        meta.actualizarAvanceEnMinutos(1);
+        assertEquals(1, meta.getMinutosCumplidos());
+        assertEquals(61, meta.getMinutosObjetivo());
+        assertEquals(99, MetaSemanal.porcentajeEntero(2999, 3000));
+    }
 }

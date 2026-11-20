@@ -4,27 +4,20 @@ import com.david.mystudio.domain.model.Materia;
 import com.david.mystudio.domain.model.SesionEstudio;
 import com.david.mystudio.domain.model.TipoTecnica;
 import com.david.mystudio.domain.service.MateriaService;
-import com.david.mystudio.domain.service.SesionEstudioService;
 import java.util.List;
+import java.util.Locale;
 
-/**
- * Presentador para el temporizador de concentración Zanshin.
- */
+/** Presenta el estado de la sesión y delega sus transiciones a SesionEnfoque. */
 public class EnfoquePresenter implements EnfoqueContract.Presenter {
 
     private static final int SEGUNDOS_POMODORO = 25 * 60;
-
-    private EnfoqueContract.View vista;
     private final MateriaService materiaService;
-    private final SesionEstudioService sesionEstudioService;
+    private final SesionEnfoque enfoque;
+    private EnfoqueContract.View vista;
 
-    private SesionEstudio sesionActiva;
-    private int segundosActuales = 0;
-    private TipoTecnica tecnicaActual = TipoTecnica.POMODORO;
-
-    public EnfoquePresenter(MateriaService materiaService, SesionEstudioService sesionEstudioService) {
+    public EnfoquePresenter(MateriaService materiaService, SesionEnfoque enfoque) {
         this.materiaService = materiaService;
-        this.sesionEstudioService = sesionEstudioService;
+        this.enfoque = enfoque;
     }
 
     @Override
@@ -34,154 +27,80 @@ public class EnfoquePresenter implements EnfoqueContract.Presenter {
 
     @Override
     public void desvincularVista() {
-        this.vista = null;
+        vista = null;
     }
 
     @Override
     public void cargarMaterias() {
-        if (vista == null) return;
-        vista.mostrarCargando(true);
         materiaService.obtenerMateriasActivas(new MateriaService.ResultadoCallback<List<Materia>>() {
             @Override
             public void onSuccess(List<Materia> materias) {
                 if (vista != null) {
-                    vista.mostrarCargando(false);
                     vista.mostrarMaterias(materias);
+                    seleccionarMateriaActiva();
                 }
             }
 
             @Override
-            public void onError(String mensajeError) {
-                if (vista != null) {
-                    vista.mostrarCargando(false);
-                    vista.mostrarError(mensajeError);
-                }
+            public void onError(String mensaje) {
+                mostrarError(mensaje);
             }
         });
     }
 
     @Override
     public void iniciarSesion(int idMateria, TipoTecnica tecnica) {
+        enfoque.iniciar(idMateria, tecnica, this::mostrarError);
+    }
+
+    @Override
+    public void recuperarSesion() {
+        enfoque.recuperar(this::mostrarError);
+    }
+
+    @Override
+    public void alternarPausa() {
+        enfoque.alternarPausa(this::mostrarError);
+    }
+
+    @Override
+    public void finalizarSesion() {
+        enfoque.finalizar(minutos -> {
+            if (vista != null) vista.mostrarResumenSesionCompletada(minutos);
+        }, this::mostrarError);
+    }
+
+    @Override
+    public void actualizarBorrador(String notas) {
+        enfoque.guardarBorrador(notas);
+    }
+
+    @Override
+    public void mostrarEstado() {
         if (vista == null) return;
-        this.tecnicaActual = tecnica != null ? tecnica : TipoTecnica.POMODORO;
-        vista.mostrarCargando(true);
-
-        sesionEstudioService.iniciarSesion(idMateria, tecnicaActual, new SesionEstudioService.ResultadoCallback<SesionEstudio>() {
-            @Override
-            public void onSuccess(SesionEstudio sesion) {
-                sesionActiva = sesion;
-                segundosActuales = 0;
-                if (vista != null) {
-                    vista.mostrarCargando(false);
-                    vista.actualizarEstadoSesion(true, false);
-                    vista.iniciarTemporizadorVisual(0);
-                }
-            }
-
-            @Override
-            public void onError(String mensajeError) {
-                if (vista != null) {
-                    vista.mostrarCargando(false);
-                    vista.mostrarError(mensajeError);
-                }
-            }
-        });
+        vista.actualizarEstadoSesion(enfoque.getEstado(), enfoque.puedeAlternarPausa());
+        vista.mostrarNotas(enfoque.getNotas());
+        seleccionarMateriaActiva();
+        mostrarTiempo();
     }
 
     @Override
-    public void alternarPausa(boolean estaPausado) {
-        if (vista != null) {
-            vista.actualizarEstadoSesion(sesionActiva != null, estaPausado);
-        }
-    }
-
-    @Override
-    public void finalizarSesion(String notas) {
-        if (sesionActiva == null) {
-            if (vista != null) vista.mostrarError("No hay una sesión activa para finalizar");
-            return;
-        }
-
-        if (vista != null) vista.mostrarCargando(true);
-
-        int minutos = segundosActuales / 60;
-        sesionEstudioService.finalizarOCancelarSesionActiva(segundosActuales, notas, new SesionEstudioService.ResultadoCallback<Void>() {
-            @Override
-            public void onSuccess(Void resultado) {
-                sesionActiva = null;
-                segundosActuales = 0;
-                if (vista != null) {
-                    vista.mostrarCargando(false);
-                    vista.actualizarEstadoSesion(false, false);
-                    vista.actualizarTiempo("25:00");
-                    vista.limpiarNotas();
-                    if (minutos >= 1) {
-                        vista.mostrarResumenSesionCompletada("Sesión completada y guardada con éxito (" + minutos + " min)");
-                    } else {
-                        vista.mostrarResumenSesionCompletada("Sesión cancelada: tiempo inferior a 1 minuto.");
-                    }
-                }
-            }
-
-            @Override
-            public void onError(String mensajeError) {
-                if (vista != null) {
-                    vista.mostrarCargando(false);
-                    vista.mostrarError(mensajeError);
-                }
-            }
-        });
-    }
-
-    @Override
-    public void procesarTickSegundos(int segundos, boolean estaPausado) {
-        this.segundosActuales = segundos;
+    public void mostrarTiempo() {
         if (vista == null) return;
-
-        int minutos;
-        int segs;
-
-        if (tecnicaActual == TipoTecnica.POMODORO) {
-            int restantes = Math.max(0, SEGUNDOS_POMODORO - segundos);
-            minutos = restantes / 60;
-            segs = restantes % 60;
-        } else {
-            minutos = segundos / 60;
-            segs = segundos % 60;
+        SesionEstudio sesion = enfoque.getSesion();
+        int segundos = enfoque.getSegundos();
+        if (sesion == null || sesion.getTecnica() == TipoTecnica.POMODORO) {
+            segundos = Math.max(0, SEGUNDOS_POMODORO - segundos);
         }
-
-        String tiempoFormateado = String.format("%02d:%02d", minutos, segs);
-        vista.actualizarTiempo(tiempoFormateado);
-        boolean haySesion = (sesionActiva != null) || StudyTimerService.isSesionEnCurso();
-        vista.actualizarEstadoSesion(haySesion, estaPausado);
+        vista.actualizarTiempo(String.format(Locale.getDefault(), "%02d:%02d", segundos / 60, segundos % 60));
     }
 
-    @Override
-    public void restaurarSesionActivaSiExiste() {
-        sesionEstudioService.obtenerSesionActiva(new SesionEstudioService.ResultadoCallback<SesionEstudio>() {
-            @Override
-            public void onSuccess(SesionEstudio sesion) {
-                if (sesion != null) {
-                    sesionActiva = sesion;
-                    tecnicaActual = sesion.getTecnica() != null ? sesion.getTecnica() : TipoTecnica.POMODORO;
-                    if (vista != null) {
-                        vista.seleccionarMateriaActiva(sesion.getIdMateria());
-                        boolean estaPausado = StudyTimerService.isSesionPausada();
-                        vista.actualizarEstadoSesion(true, estaPausado);
-                    }
-                }
-            }
-
-            @Override
-            public void onError(String mensajeError) {
-                // Sin sesión activa previa
-            }
-        });
+    private void seleccionarMateriaActiva() {
+        SesionEstudio sesion = enfoque.getSesion();
+        if (sesion != null) vista.seleccionarMateriaActiva(sesion.getIdMateria());
     }
 
-    @Override
-    public void sincronizarConServicio(int segundosTranscurridos, boolean estaPausado) {
-        this.segundosActuales = segundosTranscurridos;
-        procesarTickSegundos(segundosTranscurridos, estaPausado);
+    private void mostrarError(String mensaje) {
+        if (vista != null) vista.mostrarError(mensaje);
     }
 }

@@ -62,19 +62,15 @@ public class MetasPresenter implements MetasContract.Presenter {
                     metaService.obtenerMetasSemana(numeroSemanaActual, anioActual, new MetaSemanalService.ResultadoCallback<List<MetaSemanal>>() {
                         @Override
                         public void onSuccess(List<MetaSemanal> metas) {
-                            double totalObj = 0.0;
-                            double totalCumpl = 0.0;
+                            int totalObj = 0;
+                            int totalCumpl = 0;
                             if (metas != null) {
                                 for (MetaSemanal m : metas) {
-                                    totalObj += m.getHorasObjetivo();
-                                    totalCumpl += m.getHorasCumplidas();
+                                    totalObj += m.getMinutosObjetivo();
+                                    totalCumpl += m.getMinutosCumplidos();
                                 }
                             }
-                            totalCumpl = Math.round(totalCumpl * 10.0) / 10.0;
-                            totalObj = Math.round(totalObj * 10.0) / 10.0;
-                            int porcentaje = totalObj > 0.0
-                                    ? (int) Math.min(100.0, Math.round((totalCumpl / totalObj) * 100.0))
-                                    : 0;
+                            int porcentaje = MetaSemanal.porcentajeEntero(totalCumpl, totalObj);
 
                             if (vista != null) {
                                 vista.mostrarCargando(false);

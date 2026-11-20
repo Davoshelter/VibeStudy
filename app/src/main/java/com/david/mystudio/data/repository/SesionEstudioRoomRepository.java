@@ -7,6 +7,10 @@ import com.david.mystudio.domain.model.SesionEstudio;
 import com.david.mystudio.domain.repository.SesionEstudioRepository;
 import com.david.mystudio.util.ThreadExecutor;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Implementación concreta del repositorio de sesiones de estudio utilizando Room.
@@ -15,6 +19,8 @@ public class SesionEstudioRoomRepository implements SesionEstudioRepository {
 
     private final SesionEstudioDao sesionEstudioDao;
     private final ThreadExecutor executor;
+    // El saneamiento de arranque debe terminar antes de insertar una nueva sesión.
+    private final ExecutorService operacionesSesion = Executors.newSingleThreadExecutor();
 
     public SesionEstudioRoomRepository(SesionEstudioDao sesionEstudioDao) {
         this.sesionEstudioDao = sesionEstudioDao;
@@ -22,30 +28,39 @@ public class SesionEstudioRoomRepository implements SesionEstudioRepository {
     }
 
     @Override
-    public void guardar(SesionEstudio sesion, Callback<Long> callback) {
-        executor.executeOnBackground(() -> {
-            SesionEstudioEntity entity = SesionEstudioMapper.toEntity(sesion);
-            long idGenerado = sesionEstudioDao.insertar(entity);
-            executor.executeOnMain(() -> callback.onResult(idGenerado));
+    public void guardar(SesionEstudio sesion, Callback<Long> callback, Consumer<RuntimeException> onError) {
+        ejecutarEnCola(() -> sesionEstudioDao.insertar(SesionEstudioMapper.toEntity(sesion)), callback, onError);
+    }
+
+    @Override
+    public void guardarSiNoHaySesionActiva(SesionEstudio sesion, Callback<Long> callback,
+                                          Consumer<RuntimeException> onError) {
+        ejecutarEnCola(() -> sesionEstudioDao.insertarSiNoHaySesionActiva(
+                SesionEstudioMapper.toEntity(sesion)), callback, onError);
+    }
+
+    @Override
+    public void cerrar(SesionEstudio cierre, Callback<Integer> callback, Consumer<RuntimeException> onError) {
+        ejecutarEnCola(() -> sesionEstudioDao.cerrarSesionActiva(cierre.getId(), cierre.getEstado().name(),
+                cierre.getFechaHoraFin().getTime(), cierre.getDuracionMinutos(), cierre.getNotasObservaciones()),
+                callback, onError);
+    }
+
+    private <T> void ejecutarEnCola(Supplier<T> operacion, Callback<T> callback, Consumer<RuntimeException> onError) {
+        operacionesSesion.execute(() -> {
+            try {
+                T resultado = operacion.get();
+                executor.executeOnMain(() -> callback.onResult(resultado));
+            } catch (RuntimeException error) {
+                android.util.Log.e("SesionEstudioRepo", "Falló el acceso al registro de la sesión", error);
+                executor.executeOnMain(() -> onError.accept(error));
+            }
         });
     }
 
     @Override
-    public void actualizar(SesionEstudio sesion, Callback<Void> callback) {
-        executor.executeOnBackground(() -> {
-            SesionEstudioEntity entity = SesionEstudioMapper.toEntity(sesion);
-            sesionEstudioDao.actualizar(entity);
-            executor.executeOnMain(() -> callback.onResult(null));
-        });
-    }
-
-    @Override
-    public void buscarPorId(int id, Callback<SesionEstudio> callback) {
-        executor.executeOnBackground(() -> {
-            SesionEstudioEntity entity = sesionEstudioDao.buscarPorId(id);
-            SesionEstudio sesion = SesionEstudioMapper.toDomain(entity);
-            executor.executeOnMain(() -> callback.onResult(sesion));
-        });
+    public void buscarPorId(int id, Callback<SesionEstudio> callback, Consumer<RuntimeException> onError) {
+        ejecutarEnCola(() -> SesionEstudioMapper.toDomain(sesionEstudioDao.buscarPorId(id)), callback, onError);
     }
 
     @Override
@@ -54,15 +69,6 @@ public class SesionEstudioRoomRepository implements SesionEstudioRepository {
             List<SesionEstudioEntity> entities = sesionEstudioDao.obtenerCompletadasPorMateria(idMateria);
             List<SesionEstudio> sesiones = SesionEstudioMapper.toDomainList(entities);
             executor.executeOnMain(() -> callback.onResult(sesiones));
-        });
-    }
-
-    @Override
-    public void obtenerSesionActiva(Callback<SesionEstudio> callback) {
-        executor.executeOnBackground(() -> {
-            SesionEstudioEntity entity = sesionEstudioDao.obtenerSesionActiva();
-            SesionEstudio sesion = SesionEstudioMapper.toDomain(entity);
-            executor.executeOnMain(() -> callback.onResult(sesion));
         });
     }
 
@@ -103,12 +109,9 @@ public class SesionEstudioRoomRepository implements SesionEstudioRepository {
     }
 
     @Override
-    public void sanearSesionesHuerfanas(String motivo, Callback<Integer> callback) {
-        executor.executeOnBackground(() -> {
-            int afectadas = sesionEstudioDao.cancelarSesionesEnCurso(motivo, System.currentTimeMillis());
-            if (callback != null) {
-                executor.executeOnMain(() -> callback.onResult(afectadas));
-            }
-        });
+    public void sanearSesionesHuerfanas(int idConCronometro, String motivo, Callback<Integer> callback,
+                                       Consumer<RuntimeException> onError) {
+        ejecutarEnCola(() -> sesionEstudioDao.cancelarSesionesEnCurso(motivo, System.currentTimeMillis(), idConCronometro),
+                callback, onError);
     }
 }

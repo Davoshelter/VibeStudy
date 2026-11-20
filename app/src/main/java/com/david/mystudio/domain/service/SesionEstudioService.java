@@ -60,63 +60,48 @@ public class SesionEstudioService {
                 ""
         );
 
-        sesionRepository.guardar(nuevaSesion, callback::onSuccess);
+        sesionRepository.guardar(nuevaSesion, callback::onSuccess,
+                error -> callback.onError("No se pudo guardar la sesión programada"));
     }
 
     public void iniciarSesion(int idMateria, TipoTecnica tecnica, ResultadoCallback<SesionEstudio> callback) {
-        // RN-SES-03: Exclusividad de sesión activa
-        sesionRepository.obtenerSesionActiva(sesionActiva -> {
-            if (sesionActiva != null) {
+        SesionEstudio nuevaSesion = new SesionEstudio(0, idMateria, null, new Date(), null, 0,
+                EstadoSesion.EN_CURSO, tecnica, "");
+        // RN-SES-03: Room verifica e inserta dentro de la misma transacción.
+        sesionRepository.guardarSiNoHaySesionActiva(nuevaSesion, nuevoId -> {
+            if (nuevoId == 0) {
                 callback.onError("Ya existe una sesión de estudio en curso");
                 return;
             }
-
-            SesionEstudio nuevaSesion = new SesionEstudio(
-                    0,
-                    idMateria,
-                    null,
-                    new Date(),
-                    null,
-                    0,
-                    EstadoSesion.EN_CURSO,
-                    tecnica != null ? tecnica : TipoTecnica.BLOQUE_LIBRE,
-                    ""
-            );
-
-            sesionRepository.guardar(nuevaSesion, nuevoId -> {
-                nuevaSesion.setId(nuevoId.intValue());
-                callback.onSuccess(nuevaSesion);
-            });
-        });
+            nuevaSesion.setId(nuevoId.intValue());
+            callback.onSuccess(nuevaSesion);
+        }, error -> callback.onError("No se pudo iniciar la sesión de estudio"));
     }
 
-    public void finalizarSesion(SesionEstudio sesion, int minutosEfectivos, String notas,
-                               ResultadoCallback<Void> callback) {
-        // RN-SES-05: Umbral mínimo de 1 minuto
-        if (minutosEfectivos < DURACION_MINIMA_REGISTRO_MINUTOS) {
-            callback.onError("La duración debe ser de al menos 1 minuto para guardarse");
-            return;
-        }
-
+    public void cerrarSesion(SesionEstudio sesion, int segundosEfectivos, String notas,
+                             ResultadoCallback<Integer> callback) {
+        int minutos = Math.max(0, segundosEfectivos) / 60;
+        boolean completada = minutos >= DURACION_MINIMA_REGISTRO_MINUTOS;
         Date fechaFin = new Date();
-        sesion.setFechaHoraFin(fechaFin);
-        sesion.setDuracionMinutos(minutosEfectivos);
-        sesion.setEstado(EstadoSesion.COMPLETADA);
-        sesion.setNotasObservaciones(notas != null ? notas.trim() : "");
+        String observaciones = completada ? (notas == null ? "" : notas.trim())
+                : "Sesión cancelada: tiempo inferior a 1 minuto.";
+        SesionEstudio cierre = new SesionEstudio(sesion.getId(), sesion.getIdMateria(),
+                sesion.getFechaProgramada(), sesion.getFechaHoraInicio(), fechaFin, minutos,
+                completada ? EstadoSesion.COMPLETADA : EstadoSesion.CANCELADA, sesion.getTecnica(), observaciones);
 
-        sesionRepository.actualizar(sesion, resultado -> {
-            // Actualizar meta semanal asociada si existe
-            if (metaSemanalService != null) {
-                metaSemanalService.acumularAvanceSesion(sesion.getIdMateria(), fechaFin, minutosEfectivos);
+        sesionRepository.cerrar(cierre, filas -> {
+            if (filas > 0 && completada) {
+                if (metaSemanalService != null) {
+                    // Las consultas semanales clasifican las sesiones por fecha de inicio.
+                    metaSemanalService.acumularAvanceSesion(sesion.getIdMateria(), sesion.getFechaHoraInicio());
+                }
+                if (rachaService != null) {
+                    rachaService.evaluarRachaTrasSesion(fechaFin, () -> callback.onSuccess(minutos));
+                    return;
+                }
             }
-
-            // Evaluar incremento de racha
-            if (rachaService != null) {
-                rachaService.evaluarRachaTrasSesion(fechaFin, () -> callback.onSuccess(null));
-            } else {
-                callback.onSuccess(null);
-            }
-        });
+            callback.onSuccess(minutos);
+        }, error -> callback.onError("No se pudo guardar el cierre. Intenta finalizar de nuevo."));
     }
 
     public void obtenerAgendaHoy(ResultadoCallback<List<SesionEstudio>> callback) {
@@ -131,36 +116,19 @@ public class SesionEstudioService {
         sesionRepository.obtenerHistorialReciente(limite, callback::onSuccess);
     }
 
-    public void obtenerSesionActiva(ResultadoCallback<SesionEstudio> callback) {
-        sesionRepository.obtenerSesionActiva(callback::onSuccess);
+    public void buscarSesionRecuperable(int id, ResultadoCallback<SesionEstudio> callback) {
+        sesionRepository.buscarPorId(id, sesion -> callback.onSuccess(
+                sesion != null && sesion.getEstado() == EstadoSesion.EN_CURSO ? sesion : null),
+                error -> callback.onError("No se pudo recuperar la sesión de estudio."));
     }
 
-    public void finalizarOCancelarSesionActiva(int segundosTranscurridos, String notas, ResultadoCallback<Void> callback) {
-        sesionRepository.obtenerSesionActiva(sesionActiva -> {
-            if (sesionActiva == null) {
-                if (callback != null) callback.onSuccess(null);
-                return;
-            }
-
-            int minutos = segundosTranscurridos / 60;
-            if (minutos >= DURACION_MINIMA_REGISTRO_MINUTOS) {
-                finalizarSesion(sesionActiva, minutos, notas, callback);
-            } else {
-                sesionActiva.setEstado(EstadoSesion.CANCELADA);
-                sesionActiva.setFechaHoraFin(new Date());
-                sesionActiva.setNotasObservaciones("Sesión cancelada: tiempo inferior a 1 minuto.");
-                sesionRepository.actualizar(sesionActiva, res -> {
-                    if (callback != null) callback.onSuccess(null);
-                });
-            }
-        });
-    }
-
-    public void sanearSesionesHuerfanas(ResultadoCallback<Integer> callback) {
-        sesionRepository.sanearSesionesHuerfanas("Sesión cerrada tras reinicio o apagado del dispositivo", resultado -> {
+    public void sanearSesionesHuerfanas(int idConCronometro, ResultadoCallback<Integer> callback) {
+        sesionRepository.sanearSesionesHuerfanas(idConCronometro, "Sesión interrumpida sin un cronómetro guardado", resultado -> {
             if (callback != null) {
-                callback.onSuccess(resultado != null ? resultado : 0);
+                callback.onSuccess(resultado);
             }
+        }, error -> {
+            if (callback != null) callback.onError("No se pudieron cerrar las sesiones anteriores");
         });
     }
 }

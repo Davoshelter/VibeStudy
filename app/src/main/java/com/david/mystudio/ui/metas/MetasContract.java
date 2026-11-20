@@ -14,7 +14,7 @@ public interface MetasContract {
 
     interface View extends BaseView {
         void mostrarSemana(String textoSemana);
-        void mostrarCompromisoTotal(double cumplidas, double objetivo, int porcentaje);
+        void mostrarCompromisoTotal(int minutosCumplidos, int minutosObjetivo, int porcentaje);
         void mostrarMetas(List<MetaSemanal> metas, Map<Integer, Materia> mapaMaterias);
         void mostrarDialogoFijarMeta(List<Materia> materiasDisponibles);
         void mostrarMensajeExito(String mensaje);

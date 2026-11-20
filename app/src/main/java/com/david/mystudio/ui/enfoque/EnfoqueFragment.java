@@ -1,11 +1,8 @@
 package com.david.mystudio.ui.enfoque;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +13,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import com.david.mystudio.MainActivity;
+import com.david.mystudio.AppContainer;
 import com.david.mystudio.R;
 import com.david.mystudio.StudyApplication;
 import com.david.mystudio.domain.model.Materia;
@@ -26,10 +22,8 @@ import com.david.mystudio.domain.model.TipoTecnica;
 import com.google.android.material.button.MaterialButton;
 import java.util.List;
 
-/**
- * Fragmento de la Pantalla 3: Enfoque Zanshin (Temporizador).
- */
-public class EnfoqueFragment extends Fragment implements EnfoqueContract.View, StudyTimerService.OnTimerTickListener {
+/** Pantalla Enfoque Zanshin. */
+public class EnfoqueFragment extends Fragment implements EnfoqueContract.View {
 
     private EnfoqueContract.Presenter presenter;
     private Spinner spnAsignatura;
@@ -39,30 +33,15 @@ public class EnfoqueFragment extends Fragment implements EnfoqueContract.View, S
     private MaterialButton btnFinalizar;
     private MaterialButton btnIniciar;
     private EditText edtNotas;
-
-    private StudyTimerService timerService;
-    private boolean servicioEnlazado = false;
-
-    private final ServiceConnection serviceConnection = new ServiceConnection() {
+    private final TextWatcher notasWatcher = new TextWatcher() {
         @Override
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            StudyTimerService.LocalBinder localBinder = (StudyTimerService.LocalBinder) binder;
-            timerService = localBinder.getService();
-            timerService.setListener(EnfoqueFragment.this);
-            servicioEnlazado = true;
-            if (presenter != null) {
-                presenter.restaurarSesionActivaSiExiste();
-                if (timerService.isEstaCorriendo()) {
-                    presenter.sincronizarConServicio(timerService.getSegundosTranscurridos(), timerService.isEstaPausado());
-                }
-            }
-        }
-
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
         @Override
-        public void onServiceDisconnected(ComponentName name) {
-            timerService = null;
-            servicioEnlazado = false;
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            presenter.actualizarBorrador(s.toString());
         }
+        @Override
+        public void afterTextChanged(Editable s) {}
     };
 
     @Nullable
@@ -75,11 +54,9 @@ public class EnfoqueFragment extends Fragment implements EnfoqueContract.View, S
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        StudyApplication app = (StudyApplication) requireActivity().getApplication();
-        presenter = new EnfoquePresenter(
-                app.getAppContainer().getMateriaService(),
-                app.getAppContainer().getSesionEstudioService()
-        );
+        AppContainer container = ((StudyApplication) requireActivity().getApplication()).getAppContainer();
+        SesionEnfoque sesionEnfoque = container.getSesionEnfoque();
+        presenter = new EnfoquePresenter(container.getMateriaService(), sesionEnfoque);
         presenter.vincularVista(this);
 
         spnAsignatura = view.findViewById(R.id.spnAsignaturaEnfoque);
@@ -89,150 +66,112 @@ public class EnfoqueFragment extends Fragment implements EnfoqueContract.View, S
         btnFinalizar = view.findViewById(R.id.btnFinalizarEnfoque);
         btnIniciar = view.findViewById(R.id.btnIniciarSesionEnfoque);
         edtNotas = view.findViewById(R.id.edtNotasSesion);
+        edtNotas.setSaveEnabled(false); // El borrador acompaña la sesión al recrear la vista.
 
         btnIniciar.setOnClickListener(v -> {
-            Materia seleccionada = (Materia) spnAsignatura.getSelectedItem();
-            if (seleccionada == null) {
-                Toast.makeText(getContext(), R.string.enfoque_sin_materia_alerta, Toast.LENGTH_SHORT).show();
+            if (sesionEnfoque.getEstado() == SesionEnfoque.Estado.RECUPERABLE) {
+                presenter.recuperarSesion();
                 return;
             }
-            presenter.iniciarSesion(seleccionada.getId(), TipoTecnica.POMODORO);
+            Materia materia = (Materia) spnAsignatura.getSelectedItem();
+            if (materia == null) {
+                Toast.makeText(requireContext(), R.string.enfoque_sin_materia_alerta, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            presenter.iniciarSesion(materia.getId(), TipoTecnica.POMODORO);
         });
+        btnPausarReanudar.setOnClickListener(v -> presenter.alternarPausa());
+        btnFinalizar.setOnClickListener(v -> presenter.finalizarSesion());
+        edtNotas.addTextChangedListener(notasWatcher);
 
-        btnPausarReanudar.setOnClickListener(v -> {
-            if (timerService != null) {
-                if (timerService.isEstaPausado()) {
-                    timerService.reanudar();
-                    presenter.alternarPausa(false);
-                } else {
-                    timerService.pausar();
-                    presenter.alternarPausa(true);
-                }
-            }
-        });
-
-        btnFinalizar.setOnClickListener(v -> {
-            String notas = edtNotas.getText() != null ? edtNotas.getText().toString().trim() : "";
-            if (timerService != null) {
-                timerService.detener();
-            }
-            if (getContext() != null) {
-                StudyTimerService.detenerServicio(getContext());
-            }
-            presenter.finalizarSesion(notas);
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).actualizarBloqueoSwipeSegunSesion();
-            }
-        });
-
-        enlazarServicio();
+        sesionEnfoque.observarEstado().observe(getViewLifecycleOwner(), estado -> presenter.mostrarEstado());
+        sesionEnfoque.observarSegundos().observe(getViewLifecycleOwner(), segundos -> presenter.mostrarTiempo());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (presenter != null) {
-            presenter.cargarMaterias();
-            presenter.restaurarSesionActivaSiExiste();
-        }
+        presenter.cargarMaterias();
     }
 
     @Override
     public void onDestroyView() {
+        edtNotas.removeTextChangedListener(notasWatcher);
+        presenter.desvincularVista();
+        spnAsignatura = null;
+        txtTiempo = null;
+        txtEstado = null;
+        btnPausarReanudar = null;
+        btnFinalizar = null;
+        btnIniciar = null;
+        edtNotas = null;
         super.onDestroyView();
-        if (timerService != null) {
-            timerService.setListener(null);
-        }
-        desenlazarServicio();
-        if (presenter != null) {
-            presenter.desvincularVista();
-        }
-    }
-
-    private void enlazarServicio() {
-        Context context = getContext();
-        if (context != null) {
-            Intent intent = new Intent(context, StudyTimerService.class);
-            context.startService(intent);
-            context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-        }
-    }
-
-    private void desenlazarServicio() {
-        if (servicioEnlazado && getContext() != null) {
-            getContext().unbindService(serviceConnection);
-            servicioEnlazado = false;
-        }
     }
 
     @Override
     public void mostrarMaterias(List<Materia> materias) {
-        if (getContext() == null) return;
-        if (materias == null || materias.isEmpty()) {
-            Toast.makeText(getContext(), "No tienes materias registradas para estudiar", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        ArrayAdapter<Materia> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, materias);
+        ArrayAdapter<Materia> adapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_dropdown_item, materias);
         spnAsignatura.setAdapter(adapter);
     }
 
     @Override
     public void seleccionarMateriaActiva(int idMateria) {
-        if (spnAsignatura == null || spnAsignatura.getAdapter() == null) return;
+        if (spnAsignatura.getAdapter() == null) return;
         for (int i = 0; i < spnAsignatura.getAdapter().getCount(); i++) {
-            Object item = spnAsignatura.getAdapter().getItem(i);
-            if (item instanceof Materia && ((Materia) item).getId() == idMateria) {
+            Materia materia = (Materia) spnAsignatura.getAdapter().getItem(i);
+            if (materia.getId() == idMateria) {
                 spnAsignatura.setSelection(i);
-                break;
+                return;
             }
         }
     }
 
     @Override
     public void actualizarTiempo(String tiempoFormateado) {
-        if (txtTiempo != null) {
-            txtTiempo.setText(tiempoFormateado);
+        txtTiempo.setText(tiempoFormateado);
+    }
+
+    @Override
+    public void actualizarEstadoSesion(SesionEnfoque.Estado estado, boolean puedePausar) {
+        boolean inactiva = estado == SesionEnfoque.Estado.INACTIVA;
+        boolean recuperable = estado == SesionEnfoque.Estado.RECUPERABLE;
+        boolean iniciando = estado == SesionEnfoque.Estado.INICIANDO;
+        boolean guardando = estado == SesionEnfoque.Estado.FINALIZANDO;
+        boolean pausada = estado == SesionEnfoque.Estado.PAUSADA;
+        boolean mostrarInicio = inactiva || recuperable || iniciando;
+        btnIniciar.setVisibility(mostrarInicio ? View.VISIBLE : View.GONE);
+        btnIniciar.setEnabled(!iniciando);
+        btnIniciar.setText(recuperable ? R.string.enfoque_btn_recuperar : R.string.enfoque_btn_iniciar);
+        btnPausarReanudar.setVisibility(mostrarInicio ? View.GONE : View.VISIBLE);
+        btnPausarReanudar.setEnabled(puedePausar);
+        btnPausarReanudar.setText(pausada ? R.string.enfoque_btn_reanudar : R.string.enfoque_btn_pausar);
+        btnPausarReanudar.setIconResource(pausada ? R.drawable.ic_play_arrow : R.drawable.ic_pause);
+        btnFinalizar.setVisibility(mostrarInicio ? View.GONE : View.VISIBLE);
+        btnFinalizar.setEnabled(!guardando);
+        spnAsignatura.setEnabled(inactiva);
+        edtNotas.setEnabled(!guardando);
+
+        switch (estado) {
+            case INACTIVA: txtEstado.setText(R.string.enfoque_estado_inactivo); break;
+            case RECUPERABLE: txtEstado.setText(R.string.enfoque_estado_recuperable); break;
+            case INICIANDO: txtEstado.setText(R.string.enfoque_estado_iniciando); break;
+            case ACTIVA: txtEstado.setText(R.string.enfoque_estado_activo); break;
+            case PAUSADA: txtEstado.setText(R.string.enfoque_estado_pausado); break;
+            case FINALIZANDO: txtEstado.setText(R.string.enfoque_estado_guardando); break;
         }
     }
 
     @Override
-    public void actualizarEstadoSesion(boolean corriendo, boolean pausado) {
-        if (!corriendo) {
-            btnIniciar.setVisibility(View.VISIBLE);
-            btnPausarReanudar.setVisibility(View.GONE);
-            btnFinalizar.setVisibility(View.GONE);
-            txtEstado.setText("Estado: En espera de inicio");
-        } else {
-            btnIniciar.setVisibility(View.GONE);
-            btnPausarReanudar.setVisibility(View.VISIBLE);
-            btnFinalizar.setVisibility(View.VISIBLE);
-            if (pausado) {
-                txtEstado.setText(R.string.enfoque_estado_pausado);
-                btnPausarReanudar.setText(R.string.enfoque_btn_reanudar);
-                btnPausarReanudar.setIconResource(R.drawable.ic_play_arrow);
-            } else {
-                txtEstado.setText(R.string.enfoque_estado_activo);
-                btnPausarReanudar.setText(R.string.enfoque_btn_pausar);
-                btnPausarReanudar.setIconResource(R.drawable.ic_pause);
-            }
-        }
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).actualizarBloqueoSwipeSegunSesion();
-        }
+    public void mostrarResumenSesionCompletada(int minutos) {
+        String mensaje = minutos > 0 ? getString(R.string.enfoque_resumen_guardado, minutos)
+                : getString(R.string.enfoque_resumen_cancelado);
+        Toast.makeText(requireContext(), mensaje, Toast.LENGTH_LONG).show();
     }
 
     @Override
-    public void mostrarResumenSesionCompletada(String mensaje) {
-        if (getContext() != null) {
-            Toast.makeText(getContext(), mensaje, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void limpiarNotas() {
-        if (edtNotas != null) {
-            edtNotas.setText("");
-        }
+    public void mostrarNotas(String notas) {
+        if (!notas.contentEquals(edtNotas.getText())) edtNotas.setText(notas);
     }
 
     @Override
@@ -240,27 +179,6 @@ public class EnfoqueFragment extends Fragment implements EnfoqueContract.View, S
 
     @Override
     public void mostrarError(String mensaje) {
-        if (getContext() != null) {
-            Toast.makeText(getContext(), mensaje, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void iniciarTemporizadorVisual(int segundosIniciales) {
-        Context context = getContext();
-        if (context != null) {
-            Intent intent = new Intent(context, StudyTimerService.class);
-            ContextCompat.startForegroundService(context, intent);
-        }
-        if (timerService != null) {
-            timerService.iniciar(segundosIniciales);
-        }
-    }
-
-    @Override
-    public void onTick(int segundosTranscurridos, boolean estaPausado) {
-        if (presenter != null) {
-            presenter.procesarTickSegundos(segundosTranscurridos, estaPausado);
-        }
+        Toast.makeText(requireContext(), mensaje, Toast.LENGTH_LONG).show();
     }
 }

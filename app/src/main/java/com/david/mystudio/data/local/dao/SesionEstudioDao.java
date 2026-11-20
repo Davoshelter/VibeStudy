@@ -4,7 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-import androidx.room.Update;
+import androidx.room.Transaction;
 import com.david.mystudio.data.local.entity.SesionEstudioEntity;
 import java.util.List;
 
@@ -17,8 +17,14 @@ public interface SesionEstudioDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insertar(SesionEstudioEntity sesion);
 
-    @Update
-    void actualizar(SesionEstudioEntity sesion);
+    @Transaction
+    default long insertarSiNoHaySesionActiva(SesionEstudioEntity sesion) {
+        return obtenerSesionActiva() == null ? insertar(sesion) : 0;
+    }
+
+    @Query("UPDATE sesiones_estudio SET estado = :estado, fecha_hora_fin = :fechaFin, "
+            + "duracion_minutos = :minutos, notas_observaciones = :notas WHERE id = :id AND estado = 'EN_CURSO'")
+    int cerrarSesionActiva(int id, String estado, long fechaFin, int minutos, String notas);
 
     @Query("SELECT * FROM sesiones_estudio WHERE id = :id LIMIT 1")
     SesionEstudioEntity buscarPorId(int id);
@@ -41,6 +47,7 @@ public interface SesionEstudioDao {
     @Query("SELECT * FROM sesiones_estudio WHERE estado = 'COMPLETADA' ORDER BY fecha_hora_inicio DESC LIMIT :limite")
     List<SesionEstudioEntity> obtenerHistorialReciente(int limite);
 
-    @Query("UPDATE sesiones_estudio SET estado = 'CANCELADA', notas_observaciones = :motivo, fecha_hora_fin = :fechaFin WHERE estado = 'EN_CURSO'")
-    int cancelarSesionesEnCurso(String motivo, long fechaFin);
+    @Query("UPDATE sesiones_estudio SET estado = 'CANCELADA', notas_observaciones = :motivo, "
+            + "fecha_hora_fin = :fechaFin WHERE estado = 'EN_CURSO' AND id != :idConCronometro")
+    int cancelarSesionesEnCurso(String motivo, long fechaFin, int idConCronometro);
 }

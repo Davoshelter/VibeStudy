@@ -7,244 +7,129 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
-import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.ServiceCompat;
+import androidx.lifecycle.Observer;
 import com.david.mystudio.MainActivity;
 import com.david.mystudio.R;
+import com.david.mystudio.StudyApplication;
+import java.util.Locale;
 
-/**
- * Servicio en primer plano (Foreground Service) que gestiona el cronómetro
- * persistente de la sesión de estudio aún cuando la aplicación pasa a segundo plano.
- */
+/** Mantiene la sesión en primer plano y publica el tiempo efectivo. */
 public class StudyTimerService extends Service {
 
-    public static final String CANAL_NOTIFICACION_ID = "canal_estudio_zanshin";
-    public static final String ACTION_DETENER = "com.david.mystudio.ACTION_DETENER_TIMER";
+    public static final String ACTION_ABRIR_ENFOQUE = "com.david.mystudio.ABRIR_ENFOQUE";
+    private static final String CANAL = "canal_estudio_zanshin";
     private static final int NOTIFICACION_ID = 1001;
-
-    private static boolean servicioCorriendo = false;
-    private static boolean servicioPausado = false;
-    private static int ultimosSegundos = 0;
-
-    public static boolean isSesionEnCurso() {
-        return servicioCorriendo;
-    }
-
-    public static boolean isSesionPausada() {
-        return servicioPausado;
-    }
-
-    public static int getUltimosSegundos() {
-        return ultimosSegundos;
-    }
-
-    public static void detenerServicio(android.content.Context context) {
-        servicioCorriendo = false;
-        servicioPausado = false;
-        if (context != null) {
-            Intent intent = new Intent(context, StudyTimerService.class);
-            intent.setAction(ACTION_DETENER);
-            context.startService(intent);
-        }
-    }
-
-    public interface OnTimerTickListener {
-        void onTick(int segundosTranscurridos, boolean estaPausado);
-    }
-
-    private final IBinder binder = new LocalBinder();
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private int segundosTranscurridos = 0;
-    private boolean estaPausado = false;
-    private boolean estaCorriendo = false;
-    private OnTimerTickListener listener;
+    private SesionEnfoque enfoque;
+    private NotificationManager notificaciones;
+    private boolean enPrimerPlano;
+    private final Observer<SesionEnfoque.Estado> estadoNotificacion = this::actualizarNotificacion;
 
-    private final Runnable timerRunnable = new Runnable() {
+    private final Runnable tick = new Runnable() {
         @Override
         public void run() {
-            if (estaCorriendo && !estaPausado) {
-                segundosTranscurridos++;
-                ultimosSegundos = segundosTranscurridos;
-                if (listener != null) {
-                    listener.onTick(segundosTranscurridos, estaPausado);
-                }
-                actualizarNotificacion();
-                handler.postDelayed(this, 1000);
-            }
+            if (!enPrimerPlano || enfoque.getEstado() == SesionEnfoque.Estado.INACTIVA) return;
+            enfoque.publicarTiempo();
+            handler.postDelayed(this, 250);
         }
     };
-
-    public class LocalBinder extends Binder {
-        public StudyTimerService getService() {
-            return StudyTimerService.this;
-        }
-    }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        crearCanalNotificacion();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        servicioCorriendo = false;
-        servicioPausado = false;
+        enfoque = ((StudyApplication) getApplication()).getAppContainer().getSesionEnfoque();
+        notificaciones = getSystemService(NotificationManager.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && notificaciones != null) {
+            NotificationChannel canal = new NotificationChannel(CANAL,
+                    getString(R.string.enfoque_alerta_sesion_activa_titulo), NotificationManager.IMPORTANCE_LOW);
+            canal.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            notificaciones.createNotificationChannel(canal);
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && ACTION_DETENER.equals(intent.getAction())) {
-            detener();
+        enfoque.prepararReinicioDelServicio();
+        if (!enfoque.debeIniciarServicio()) {
+            if (enPrimerPlano) return START_STICKY;
+            stopSelf(startId);
             return START_NOT_STICKY;
         }
-        if (estaCorriendo) {
-            lanzarForegroundSeguro();
+        try {
+            int tipo = Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                    ? ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE : 0;
+            ServiceCompat.startForeground(this, NOTIFICACION_ID,
+                    construirNotificacion(0, SesionEnfoque.Estado.INICIANDO), tipo);
+        } catch (IllegalArgumentException | IllegalStateException | SecurityException error) {
+            Log.e("StudyTimerService", "No se pudo activar el servicio en primer plano", error);
+            stopSelf(startId);
+            enfoque.fallarInicioDelServicio();
+            return START_NOT_STICKY;
         }
-        return START_NOT_STICKY;
+        enPrimerPlano = true;
+        enfoque.observarEstado().observeForever(estadoNotificacion);
+        enfoque.confirmarInicioDelServicio();
+        handler.post(tick);
+        return START_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return binder;
+        return null;
     }
 
-    public void setListener(OnTimerTickListener listener) {
-        this.listener = listener;
-        if (listener != null) {
-            listener.onTick(segundosTranscurridos, estaPausado);
-        }
-    }
-
-    public void iniciar(int segundosIniciales) {
-        this.segundosTranscurridos = segundosIniciales;
-        ultimosSegundos = segundosIniciales;
-        this.estaCorriendo = true;
-        servicioCorriendo = true;
-        this.estaPausado = false;
-        servicioPausado = false;
-        lanzarForegroundSeguro();
-        handler.removeCallbacks(timerRunnable);
-        handler.post(timerRunnable);
-    }
-
-    private void lanzarForegroundSeguro() {
-        try {
-            Notification notif = construirNotificacion();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                ServiceCompat.startForeground(this, NOTIFICACION_ID, notif, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
-            } else {
-                ServiceCompat.startForeground(this, NOTIFICACION_ID, notif, 0);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void pausar() {
-        this.estaPausado = true;
-        servicioPausado = true;
-        actualizarNotificacion();
-        if (listener != null) {
-            listener.onTick(segundosTranscurridos, estaPausado);
-        }
-    }
-
-    public void reanudar() {
-        this.estaPausado = false;
-        servicioPausado = false;
-        handler.removeCallbacks(timerRunnable);
-        handler.post(timerRunnable);
-        if (listener != null) {
-            listener.onTick(segundosTranscurridos, estaPausado);
-        }
-    }
-
-    public void detener() {
-        this.estaCorriendo = false;
-        servicioCorriendo = false;
-        this.estaPausado = false;
-        servicioPausado = false;
-        handler.removeCallbacks(timerRunnable);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+    @Override
+    public void onDestroy() {
+        handler.removeCallbacks(tick);
+        if (enPrimerPlano) {
+            enPrimerPlano = false;
+            enfoque.observarEstado().removeObserver(estadoNotificacion);
             stopForeground(STOP_FOREGROUND_REMOVE);
-        } else {
-            stopForeground(true);
+            enfoque.desconectarServicio();
         }
-        stopSelf();
+        super.onDestroy();
     }
 
-    public int getSegundosTranscurridos() {
-        return segundosTranscurridos;
-    }
-
-    public boolean isEstaCorriendo() {
-        return estaCorriendo;
-    }
-
-    public boolean isEstaPausado() {
-        return estaPausado;
-    }
-
-    private void crearCanalNotificacion() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CANAL_NOTIFICACION_ID,
-                    "Sesión de Estudio Activa",
-                    NotificationManager.IMPORTANCE_LOW
-            );
-            channel.setDescription("Mantiene activo el conteo del temporizador en segundo plano");
-            channel.setShowBadge(true);
-            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            if (manager != null) {
-                manager.createNotificationChannel(channel);
-            }
+    private void actualizarNotificacion(SesionEnfoque.Estado estado) {
+        if (notificaciones != null && estado != SesionEnfoque.Estado.INACTIVA
+                && estado != SesionEnfoque.Estado.RECUPERABLE) {
+            notificaciones.notify(NOTIFICACION_ID, construirNotificacion(enfoque.getSegundos(), estado));
         }
     }
 
-    private Notification construirNotificacion() {
-        int minutos = segundosTranscurridos / 60;
-        int segs = segundosTranscurridos % 60;
-        String tiempoStr = String.format("%02d:%02d", minutos, segs);
-        String estadoStr = estaPausado ? "Sesión pausada" : "Enfoque Zanshin en curso";
+    private Notification construirNotificacion(int segundos, SesionEnfoque.Estado estado) {
+        String tiempo = String.format(Locale.getDefault(), "%02d:%02d", segundos / 60, segundos % 60);
+        Intent intent = new Intent(this, MainActivity.class)
+                .setAction(ACTION_ABRIR_ENFOQUE)
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent abrir = PendingIntent.getActivity(this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        Intent intentApp = new Intent(this, MainActivity.class);
-        intentApp.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                this,
-                0,
-                intentApp,
-                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-        );
-
-        return new NotificationCompat.Builder(this, CANAL_NOTIFICACION_ID)
-                .setContentTitle(tiempoStr + " • StudyVibe")
-                .setContentText(estadoStr)
+        int descripcion = R.string.enfoque_estado_activo;
+        if (estado == SesionEnfoque.Estado.INICIANDO) descripcion = R.string.enfoque_estado_iniciando;
+        if (estado == SesionEnfoque.Estado.PAUSADA) descripcion = R.string.enfoque_estado_pausado;
+        if (estado == SesionEnfoque.Estado.FINALIZANDO) descripcion = R.string.enfoque_estado_guardando;
+        boolean activa = estado == SesionEnfoque.Estado.ACTIVA;
+        return new NotificationCompat.Builder(this, CANAL)
+                .setContentTitle(activa || estado == SesionEnfoque.Estado.INICIANDO ? "StudyVibe" : tiempo + " • StudyVibe")
+                .setWhen(System.currentTimeMillis() - segundos * 1000L)
+                .setShowWhen(activa)
+                .setUsesChronometer(activa)
+                .setContentText(getString(descripcion))
                 .setSmallIcon(R.drawable.ic_timer)
-                .setContentIntent(pendingIntent)
+                .setContentIntent(abrir)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                 .build();
-    }
-
-    private void actualizarNotificacion() {
-        if (!estaCorriendo) return;
-        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (manager != null) {
-            try {
-                manager.notify(NOTIFICACION_ID, construirNotificacion());
-            } catch (Exception ignored) {
-            }
-        }
     }
 }

@@ -16,7 +16,7 @@ public interface DashboardContract {
 
     interface View extends BaseView {
         void mostrarRacha(int diasConsecutivos);
-        void mostrarMetaGlobal(double horasCumplidas, double horasObjetivo, int porcentajeAvance);
+        void mostrarMetaGlobal(int minutosCumplidos, int minutosObjetivo, int porcentajeAvance);
         void mostrarAgendaHoy(List<SesionEstudio> sesiones, Map<Integer, Materia> mapaMaterias);
         void navegarAEnfoque();
         void mostrarDialogoPlanificar(List<Materia> materiasDisponibles);

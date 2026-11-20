@@ -86,6 +86,25 @@ public class MetaSemanal {
         this.estado = estado;
     }
 
+    public void actualizarAvanceEnMinutos(int minutos) {
+        horasCumplidas = minutos / 60.0;
+        estado = estaCumplida() ? EstadoMeta.CUMPLIDA : EstadoMeta.EN_PROGRESO;
+    }
+
+    public int getMinutosCumplidos() {
+        return (int) Math.round(horasCumplidas * 60);
+    }
+
+    public int getMinutosObjetivo() {
+        // Una fracción del minuto requiere completar el siguiente minuto.
+        return (int) Math.ceil(Math.nextDown(horasObjetivo * 60));
+    }
+
+    public static int porcentajeEntero(int minutosCumplidos, int minutosObjetivo) {
+        if (minutosObjetivo <= 0) return 0;
+        return (int) Math.min(100, Math.max(0, 100L * minutosCumplidos / minutosObjetivo));
+    }
+
     /**
      * Calcula el porcentaje de avance acotado entre 0.0 y 100.0.
      */
@@ -101,7 +120,8 @@ public class MetaSemanal {
      * Retorna verdadero si la meta ha sido cumplida en un 100%.
      */
     public boolean estaCumplida() {
-        return horasCumplidas >= horasObjetivo && horasObjetivo > 0.0;
+        int objetivo = getMinutosObjetivo();
+        return objetivo > 0 && getMinutosCumplidos() >= objetivo;
     }
 
     @Override

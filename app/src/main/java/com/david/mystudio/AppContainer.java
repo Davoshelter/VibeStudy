@@ -15,6 +15,7 @@ import com.david.mystudio.domain.service.MetaSemanalService;
 import com.david.mystudio.domain.service.RachaService;
 import com.david.mystudio.domain.service.ReporteService;
 import com.david.mystudio.domain.service.SesionEstudioService;
+import com.david.mystudio.ui.enfoque.SesionEnfoque;
 
 /**
  * Contenedor central de inyección de dependencias manual.
@@ -32,6 +33,7 @@ public class AppContainer {
     private final RachaService rachaService;
     private final MetaSemanalService metaSemanalService;
     private final SesionEstudioService sesionEstudioService;
+    private final SesionEnfoque sesionEnfoque;
     private final ReporteService reporteService;
 
     public AppContainer(Context applicationContext) {
@@ -46,6 +48,7 @@ public class AppContainer {
         this.rachaService = new RachaService(rachaRepository);
         this.metaSemanalService = new MetaSemanalService(metaSemanalRepository, sesionEstudioRepository);
         this.sesionEstudioService = new SesionEstudioService(sesionEstudioRepository, metaSemanalService, rachaService);
+        this.sesionEnfoque = new SesionEnfoque(applicationContext, sesionEstudioService);
         this.reporteService = new ReporteService(sesionEstudioRepository, materiaRepository);
     }
 
@@ -55,6 +58,10 @@ public class AppContainer {
 
     public SesionEstudioService getSesionEstudioService() {
         return sesionEstudioService;
+    }
+
+    public SesionEnfoque getSesionEnfoque() {
+        return sesionEnfoque;
     }
 
     public MetaSemanalService getMetaSemanalService() {

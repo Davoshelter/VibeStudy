@@ -65,22 +65,18 @@ public class DashboardPresenter implements DashboardContract.Presenter {
             metaSemanalService.obtenerMetasSemana(semanaActual, anioActual, new MetaSemanalService.ResultadoCallback<List<MetaSemanal>>() {
                 @Override
                 public void onSuccess(List<MetaSemanal> metas) {
-                    double totalObjetivo = 0.0;
-                    double totalCumplidas = 0.0;
+                    int totalObjetivo = 0;
+                    int totalCumplido = 0;
                     if (metas != null) {
                         for (MetaSemanal m : metas) {
-                            totalObjetivo += m.getHorasObjetivo();
-                            totalCumplidas += m.getHorasCumplidas();
+                            totalObjetivo += m.getMinutosObjetivo();
+                            totalCumplido += m.getMinutosCumplidos();
                         }
                     }
-                    totalCumplidas = Math.round(totalCumplidas * 10.0) / 10.0;
-                    totalObjetivo = Math.round(totalObjetivo * 10.0) / 10.0;
-                    int porcentaje = totalObjetivo > 0.0
-                            ? (int) Math.min(100.0, Math.round((totalCumplidas / totalObjetivo) * 100.0))
-                            : 0;
+                    int porcentaje = MetaSemanal.porcentajeEntero(totalCumplido, totalObjetivo);
 
                     if (vista != null) {
-                        vista.mostrarMetaGlobal(totalCumplidas, totalObjetivo, porcentaje);
+                        vista.mostrarMetaGlobal(totalCumplido, totalObjetivo, porcentaje);
                     }
                 }
 

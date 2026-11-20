@@ -1,5 +1,7 @@
 package com.david.mystudio.ui.metas;
 
+import static com.david.mystudio.util.DateTimeUtils.formatearMinutos;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -59,11 +61,12 @@ public class MetasAdapter extends RecyclerView.Adapter<MetasAdapter.MetaViewHold
         holder.viewSwatch.setBackgroundTintList(ColorStateList.valueOf(colorEntero));
         holder.txtNombre.setTextColor(ContextCompat.getColor(context, R.color.color_on_surface));
 
-        int porcentaje = (int) Math.round(meta.calcularPorcentajeAvance());
-        if (porcentaje == 0 && meta.getHorasCumplidas() > 0.0) {
-            porcentaje = 1;
-        }
-        holder.prgItem.setProgress(Math.max(porcentaje, meta.getHorasCumplidas() > 0.0 ? 3 : 0));
+        int minutosCumplidos = meta.getMinutosCumplidos();
+        int minutosObjetivo = meta.getMinutosObjetivo();
+        int porcentaje = MetaSemanal.porcentajeEntero(minutosCumplidos, minutosObjetivo);
+        String tiempo = formatearMinutos(minutosCumplidos) + " / " + formatearMinutos(minutosObjetivo);
+        String tiempoRestante = formatearMinutos(minutosObjetivo - minutosCumplidos);
+        holder.prgItem.setProgress(porcentaje);
 
         int colorFondoChip = ContextCompat.getColor(context, R.color.color_surface);
 
@@ -74,33 +77,31 @@ public class MetasAdapter extends RecyclerView.Adapter<MetasAdapter.MetaViewHold
             holder.txtChipProgreso.setTextColor(ContextCompat.getColor(context, R.color.color_success));
             holder.txtChipProgreso.setBackgroundTintList(ColorStateList.valueOf(colorFondoChip));
             holder.prgItem.setIndicatorColor(ContextCompat.getColor(context, R.color.color_success));
-            holder.txtPorcentaje.setText(meta.getHorasCumplidas() + " / " + meta.getHorasObjetivo() + " hrs completadas");
+            holder.txtPorcentaje.setText(tiempo);
             holder.txtPorcentaje.setTextColor(ContextCompat.getColor(context, R.color.color_success));
             holder.txtDetalleFaltante.setText(R.string.metas_felicitacion);
             holder.txtDetalleFaltante.setTextColor(ContextCompat.getColor(context, R.color.color_success));
         } else if (porcentaje < 30) {
             // Variante Rezagada (Alerta adaptativa M3)
             holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.color_error_container));
-            holder.txtChipProgreso.setText(meta.getHorasCumplidas() + " / " + meta.getHorasObjetivo() + " hrs");
+            holder.txtChipProgreso.setText(tiempo);
             holder.txtChipProgreso.setTextColor(ContextCompat.getColor(context, R.color.color_error));
             holder.txtChipProgreso.setBackgroundTintList(ColorStateList.valueOf(colorFondoChip));
             holder.prgItem.setIndicatorColor(ContextCompat.getColor(context, R.color.color_error));
             holder.txtPorcentaje.setText(porcentaje + "% logrado");
             holder.txtPorcentaje.setTextColor(ContextCompat.getColor(context, R.color.color_error));
-            double faltan = Math.max(0.0, Math.round((meta.getHorasObjetivo() - meta.getHorasCumplidas()) * 10.0) / 10.0);
-            holder.txtDetalleFaltante.setText("⚠️ Asignatura rezagada: faltan " + faltan + "h");
+            holder.txtDetalleFaltante.setText("⚠️ Asignatura rezagada. Tiempo restante: " + tiempoRestante);
             holder.txtDetalleFaltante.setTextColor(ContextCompat.getColor(context, R.color.color_error));
         } else {
             // Variante En Progreso Normal
             holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.color_surface));
-            holder.txtChipProgreso.setText(meta.getHorasCumplidas() + " / " + meta.getHorasObjetivo() + " hrs");
+            holder.txtChipProgreso.setText(tiempo);
             holder.txtChipProgreso.setTextColor(ContextCompat.getColor(context, R.color.color_primary));
             holder.txtChipProgreso.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.color_surface_variant)));
             holder.prgItem.setIndicatorColor(ContextCompat.getColor(context, R.color.color_primary));
             holder.txtPorcentaje.setText(porcentaje + "% logrado");
             holder.txtPorcentaje.setTextColor(ContextCompat.getColor(context, R.color.color_on_surface));
-            double faltan = Math.max(0.0, Math.round((meta.getHorasObjetivo() - meta.getHorasCumplidas()) * 10.0) / 10.0);
-            holder.txtDetalleFaltante.setText("Faltan " + faltan + " hrs");
+            holder.txtDetalleFaltante.setText("Tiempo restante: " + tiempoRestante);
             holder.txtDetalleFaltante.setTextColor(ContextCompat.getColor(context, R.color.color_on_surface_variant));
         }
     }
