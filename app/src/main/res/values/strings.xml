@@ -114,8 +114,12 @@
 
     <!-- Diálogo de Advertencia de Sesión Activa -->
     <string name="enfoque_alerta_sesion_activa_titulo">Sesión de estudio en curso</string>
-    <string name="enfoque_alerta_sesion_activa_mensaje">Si sales de Enfoque, se cerrará la sesión. Las sesiones de al menos un minuto conservan el tiempo y las notas.</string>
-    <string name="enfoque_alerta_detener_y_cambiar">Detener y cambiar</string>
-    <string name="enfoque_alerta_detener_y_salir">Detener y salir</string>
+    <string name="enfoque_alerta_sesion_activa_mensaje">Si sales de Enfoque, la sesión se pausará automáticamente para que no pierdas tu tiempo acumulado.</string>
+    <string name="enfoque_alerta_detener_y_cambiar">Pausar y cambiar</string>
+    <string name="enfoque_alerta_detener_y_salir">Pausar y salir</string>
     <string name="enfoque_alerta_continuar_estudio">Continuar estudiando</string>
+    <string name="enfoque_notif_recuperar_titulo">Sesión de estudio pendiente</string>
+    <string name="enfoque_notif_recuperar_mensaje">Tienes una sesión de estudio guardada. Toca aquí para reanudarla.</string>
+    <string name="enfoque_notif_pomodoro">Enfoque Pomodoro</string>
+    <string name="enfoque_notif_libre">Estudio Libre</string>
 </resources>

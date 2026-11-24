@@ -54,8 +54,3 @@ captures/
 Thumbs.db
 ehthumbs.db
 
-# ==============================================================================
-# Documentación, Prototipos y Archivos de IA (MANTENER EN EL REPOSITORIO)
-# ==============================================================================
-# Archivos como prompt_arquitectura_estudio.md, prototipo_HF.html, ComoIniciarVSCODE.txt
-# se mantienen explícitamente rastreados por Git.

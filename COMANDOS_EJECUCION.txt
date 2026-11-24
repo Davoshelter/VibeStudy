@@ -1,0 +1,61 @@
+================================================================================
+           GUÍA PASO A PASO: EJECUCIÓN DEL PROYECTO EN VS CODE (WINDOWS)
+================================================================================
+
+Sigue estos pasos en orden exacto usando dos pestañas de terminal en VS Code.
+
+--------------------------------------------------------------------------------
+>>> TERMINAL 1: INICIAR EL EMULADOR (CELULAR VIRTUAL)
+--------------------------------------------------------------------------------
+
+1. Abre la primera terminal en VS Code (Ctrl + ñ).
+2. Pega este comando y presiona Enter:
+
+emulator -avd Medium_Phone_API_37.0 -gpu host
+
+IMPORTANTE: 
+* Se abrirá la ventana del teléfono en tu pantalla.
+* NO cierres esta pestaña de terminal ni presiones Ctrl + C mientras estés 
+  probando la app (si cierras esta terminal, el celular se apaga).
+
+
+--------------------------------------------------------------------------------
+>>> TERMINAL 2: INSTALAR Y ABRIR LA APLICACIÓN
+--------------------------------------------------------------------------------
+
+1. Abre una SEGUNDA terminal haciendo clic en el botón "+" (esquina superior 
+   derecha del panel de terminales de VS Code).
+
+2. Paso 2.1: Asegurar que el celular ya terminó de encender
+   Pega este comando y presiona Enter:
+
+adb wait-for-device
+
+   (Si no dice nada y vuelve a salir el cursor, significa que el celular ya 
+    está listo para recibir la aplicación).
+
+3. Paso 2.2: Instalar la aplicación (ya está 100% compilada)
+   Pega este comando y presiona Enter:
+
+adb install -r "app\build\outputs\apk\debug\app-debug.apk"
+
+   (Te responderá: "Success" en 2 segundos).
+
+4. Paso 2.3: Abrir la app en la pantalla del teléfono
+   Pega este comando y presiona Enter:
+
+adb shell am start -n com.david.mystudio/.MainActivity
+
+   (¡Listo! La aplicación StudyVibe se abrirá inmediatamente en la pantalla).
+
+
+================================================================================
+COMANDOS EXTRA (POR SI QUIERES HACER CAMBIOS O VER ERRORES):
+================================================================================
+
+* Si modificas código Java o pantallas XML y quieres volver a compilar e instalar:
+  .\gradlew.bat installDebug
+
+* Si quieres ver qué pasa dentro de la app (logs, base de datos Room, errores):
+  adb logcat *:S com.david.mystudio:V AndroidRuntime:E
+================================================================================

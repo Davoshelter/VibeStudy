@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setUserInputEnabled(navegacionLibre(enfoque.getEstado()));
         enfoque.observarEstado().observe(this, estado -> {
             viewPager.setUserInputEnabled(navegacionLibre(estado));
-            if ((estado == SesionEnfoque.Estado.ACTIVA || estado == SesionEnfoque.Estado.PAUSADA)
+            if (estado == SesionEnfoque.Estado.ACTIVA
                     && viewPager.getCurrentItem() != obtenerPosicionPorMenuId(R.id.menu_enfoque)) {
                 abrirPestana(R.id.menu_enfoque);
             }
@@ -172,13 +172,16 @@ public class MainActivity extends AppCompatActivity {
         dialogoSalida = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.enfoque_alerta_sesion_activa_titulo)
                 .setMessage(R.string.enfoque_alerta_sesion_activa_mensaje)
-                .setPositiveButton(etiquetaConfirmacion, (dialog, which) -> enfoque.finalizar(
-                        minutos -> {
-                            if (!isDestroyed() && !isFinishing()) alSalir.run();
-                        },
-                        mensaje -> {
+                .setPositiveButton(etiquetaConfirmacion, (dialog, which) -> {
+                    if (enfoque.getEstado() == SesionEnfoque.Estado.ACTIVA) {
+                        enfoque.alternarPausa(mensaje -> {
                             if (!isDestroyed()) Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show();
-                        }))
+                        });
+                    }
+                    if (!isDestroyed() && !isFinishing()) {
+                        alSalir.run();
+                    }
+                })
                 .setNegativeButton(R.string.enfoque_alerta_continuar_estudio, null)
                 .create();
         dialogoSalida.setOnDismissListener(dialog -> dialogoSalida = null);
@@ -187,7 +190,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean navegacionLibre(SesionEnfoque.Estado estado) {
-        return estado == SesionEnfoque.Estado.INACTIVA || estado == SesionEnfoque.Estado.RECUPERABLE;
+        return estado == SesionEnfoque.Estado.INACTIVA
+                || estado == SesionEnfoque.Estado.RECUPERABLE
+                || estado == SesionEnfoque.Estado.PAUSADA;
     }
 
     private static class MainPagerAdapter extends FragmentStateAdapter {
